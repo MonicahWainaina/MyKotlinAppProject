@@ -43,7 +43,7 @@ fun WelcomeScreen(navController: NavController) {
     ) {
         // Background image
         Image(
-            painter = painterResource(id = R.drawable.bestfood),
+            painter = painterResource(id = R.drawable.pink),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
