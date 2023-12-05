@@ -1,5 +1,11 @@
+@file:OptIn(ExperimentalCoilApi::class)
+
 package com.example.myfoodappproject.ui.theme.screens.home
 
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +17,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -49,6 +58,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,19 +67,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.example.myfoodappproject.R
 import com.example.myfoodappproject.navigation.ROUTE_CART
 import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
@@ -82,12 +96,21 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun HomeScreen(navController: NavHostController){
     var cartItems by rememberSaveable { mutableStateOf(0) } // Track the number of items in the cart
@@ -102,6 +125,8 @@ fun HomeScreen(navController: NavHostController){
         cartItems++
         navigateToCart.invoke()
     }
+
+    val viewModel: FoodsViewModel = viewModel()
 
     val items = listOf(
         NavigationItem(
@@ -236,24 +261,11 @@ fun HomeScreen(navController: NavHostController){
                     )
                 },
                 content = {
-                    Column(modifier = Modifier.padding(7.dp).padding(it)) {
-                        Text(
-                            text = "Hello User",
-                            fontSize = 30.sp,
-                            fontFamily = FontFamily.Cursive,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        Text(
-                            text = "What would you like to have today",
-                            fontSize = 27.sp,
-                            fontFamily = FontFamily.Cursive,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-
+                    Column(
+                        modifier = Modifier
+                            .padding(7.dp)
+                            .padding(it)
+                    ) {
                         var text by remember { mutableStateOf("") }
 
                         OutlinedTextField(
@@ -271,7 +283,8 @@ fun HomeScreen(navController: NavHostController){
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 12.dp),
+                                .padding(horizontal = 1.dp, vertical = 12.dp)
+                                .shadow(12.dp, shape = RoundedCornerShape(12.dp)),
                             textStyle = TextStyle(color = Color.Black),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 focusedBorderColor = Color.Magenta,
@@ -281,13 +294,24 @@ fun HomeScreen(navController: NavHostController){
                                 containerColor = Color.White
                             )
                         )
+                        Text(
+                            text = "Hello User",
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
 
-                        val pagerState = rememberPagerState(initialPage = 0)
+
+                        val pagerState = rememberPagerState(
+                            initialPage = 0,
+                        )
                         val imageSlider = listOf(
                             painterResource(id = R.drawable.kenyanfood),
                             painterResource(id = R.drawable.nyamachoma),
                             painterResource(id = R.drawable.popularkenyan),
-                            painterResource(id = R.drawable.bestfood)
+                            painterResource(id = R.drawable.nyamachomaplatter),
+                            painterResource(id = R.drawable.pancakes),
+                            painterResource(id = R.drawable.samosas),
+                            painterResource(id = R.drawable.breakfast)
                         )
 
                         LaunchedEffect(Unit) {
@@ -303,7 +327,8 @@ fun HomeScreen(navController: NavHostController){
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = 1.dp)
+                                .padding(7.dp)
                         ) {
                             HorizontalPager(
                                 count = imageSlider.size,
@@ -355,8 +380,17 @@ fun HomeScreen(navController: NavHostController){
                                     .align(Alignment.CenterHorizontally)
                                     .padding(16.dp)
                             )
+                            Text(
+                                text = "What would you like to have today",
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
                         }
-                    }
+
+                        }
+                        FoodList(viewModel = viewModel)
+
+
                 },
                 floatingActionButton = {
                     FloatingActionButton(
@@ -398,6 +432,151 @@ data class NavigationItem(
     val badgeCount: Int? = null,
     var route: String
 )
+
+data class FoodItem(
+    val category: String,
+    val description: String,
+    val image: String,
+    val name: String,
+    val price: Int
+) {
+    // Secondary constructor with no-argument initialization
+    constructor() : this("", "", "", "", 0)
+}
+
+
+
+
+
+
+class FoodsViewModel : ViewModel() {
+    private val database = Firebase.database("https://foodorderapp-39742-default-rtdb.firebaseio.com/")
+
+    private var _fooditems = mutableStateOf<List<FoodItem>>(emptyList())
+    val foods: State<List<FoodItem>> = _fooditems
+
+    init {
+        getFoods()
+    }
+
+    private fun getFoods() {
+        val foodItemsRef = database.getReference("FoodItems")
+        foodItemsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val items = mutableListOf<FoodItem>()
+                for (foodSnapshot in snapshot.children) {
+                    val foodItem = foodSnapshot.getValue(FoodItem::class.java)
+                    foodItem?.let {
+                        items.add(it)
+                        Log.d("FoodItems", "Retrieved FoodItem: $it") // Log each retrieved FoodItem
+                    }
+                }
+                _fooditems.value = items
+
+                if (items.isEmpty()) {
+                    Log.d("FoodItems", "No food items retrieved") // Log if the list is empty
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(TAG, "Error fetching food items: ${error.message}")
+            }
+        })
+    }
+
+}
+
+
+
+@Composable
+fun FoodList(viewModel: FoodsViewModel = viewModel()) {
+    LazyColumn(
+        modifier = Modifier.padding(horizontal = 8.dp)
+
+    ) {
+        if (viewModel.foods.value.isEmpty()) {
+            item {
+                // Display a message or placeholder content for empty data
+                Text(
+                    text = "No food items available",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
+        } else {
+            items(viewModel.foods.value) { foodItem ->
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .shadow(
+                            12.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = Color.Magenta,
+                            spotColor = Color.Magenta
+                        ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    // Load the image using Coil from the provided URL
+                    Image(
+                        painter = rememberImagePainter(data = foodItem.image),
+                        contentDescription = "Food Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp),
+                        contentScale = ContentScale.Crop
+                    )
+
+
+                    // Rest of your card content using the foodItem details
+                    // ...
+
+                    // White section containing name, price, and icon
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White)
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = foodItem.name,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "$${foodItem.price}", // Display price here
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                        }
+
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Add to Cart",
+                                tint = Color.Magenta
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview(){
