@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalCoilApi::class)
+@file:OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalPagerApi::class
+)
 
 package com.example.myfoodappproject.ui.theme.screens.home
 
@@ -9,6 +11,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -74,6 +77,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -266,6 +270,14 @@ fun HomeScreen(navController: NavHostController){
                             .padding(7.dp)
                             .padding(it)
                     ) {
+                        Text(
+                            text = "Hello User",
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(bottom = 4.dp),
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+
                         var text by remember { mutableStateOf("") }
 
                         OutlinedTextField(
@@ -294,103 +306,8 @@ fun HomeScreen(navController: NavHostController){
                                 containerColor = Color.White
                             )
                         )
-                        Text(
-                            text = "Hello User",
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-
-
-                        val pagerState = rememberPagerState(
-                            initialPage = 0,
-                        )
-                        val imageSlider = listOf(
-                            painterResource(id = R.drawable.kenyanfood),
-                            painterResource(id = R.drawable.nyamachoma),
-                            painterResource(id = R.drawable.popularkenyan),
-                            painterResource(id = R.drawable.nyamachomaplatter),
-                            painterResource(id = R.drawable.pancakes),
-                            painterResource(id = R.drawable.samosas),
-                            painterResource(id = R.drawable.breakfast)
-                        )
-
-                        LaunchedEffect(Unit) {
-                            while (true) {
-                                yield()
-                                delay(2600)
-                                pagerState.animateScrollToPage(
-                                    page = (pagerState.currentPage + 1) % pagerState.pageCount
-                                )
-                            }
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 1.dp)
-                                .padding(7.dp)
-                        ) {
-                            HorizontalPager(
-                                count = imageSlider.size,
-                                state = pagerState,
-                                contentPadding = PaddingValues(horizontal = 2.dp),
-                                modifier = Modifier
-                                    .height(120.dp)
-                                    .fillMaxWidth()
-                            ) { page ->
-                                Card(
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier
-                                        .graphicsLayer {
-                                            val pageOffset =
-                                                calculateCurrentOffsetForPage(page).absoluteValue
-
-                                            scaleX = lerp(
-                                                start = 0.85f,
-                                                stop = 1f,
-                                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                            )
-
-                                            scaleY = lerp(
-                                                start = 0.85f,
-                                                stop = 1f,
-                                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                            )
-
-                                            alpha = lerp(
-                                                start = 0.5f,
-                                                stop = 1f,
-                                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                            )
-
-                                        }
-                                ) {
-                                    Image(
-                                        painter = imageSlider[page],
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
-
-                            HorizontalPagerIndicator(
-                                pagerState = pagerState,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(16.dp)
-                            )
-                            Text(
-                                text = "What would you like to have today",
-                                fontSize = 20.sp,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
-
-                        }
                         FoodList(viewModel = viewModel)
-
-
+                    }
                 },
                 floatingActionButton = {
                     FloatingActionButton(
@@ -487,13 +404,128 @@ class FoodsViewModel : ViewModel() {
 }
 
 
-
 @Composable
 fun FoodList(viewModel: FoodsViewModel = viewModel()) {
     LazyColumn(
-        modifier = Modifier.padding(horizontal = 8.dp)
-
+        modifier = Modifier.padding(horizontal = 5.dp)
     ) {
+        item {
+           Column (
+               modifier = Modifier.padding(horizontal = 5.dp)
+           ){
+
+               val pagerState = rememberPagerState(
+                   initialPage = 0,
+               )
+               val imageSlider = listOf(
+                   painterResource(id = R.drawable.kenyanfood),
+                   painterResource(id = R.drawable.nyamachoma),
+                   painterResource(id = R.drawable.popularkenyan),
+                   painterResource(id = R.drawable.nyamachomaplatter),
+                   painterResource(id = R.drawable.pancakes),
+                   painterResource(id = R.drawable.samosas),
+                   painterResource(id = R.drawable.breakfast)
+               )
+
+               LaunchedEffect(Unit) {
+                   while (true) {
+                       yield()
+                       delay(2600)
+                       pagerState.animateScrollToPage(
+                           page = (pagerState.currentPage + 1) % pagerState.pageCount
+                       )
+                   }
+               }
+
+               Column(
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(horizontal = 1.dp)
+                       .padding(5.dp)
+               ) {
+                   HorizontalPager(
+                       count = imageSlider.size,
+                       state = pagerState,
+                       contentPadding = PaddingValues(horizontal = 1.dp),
+                       modifier = Modifier
+                           .height(150.dp)
+                           .fillMaxWidth()
+                   ) { page ->
+                       Card(
+                           shape = RoundedCornerShape(12.dp),
+                           modifier = Modifier
+                               .graphicsLayer {
+                                   val pageOffset =
+                                       calculateCurrentOffsetForPage(page).absoluteValue
+
+                                   scaleX = lerp(
+                                       start = 0.85f,
+                                       stop = 1f,
+                                       fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                   )
+
+                                   scaleY = lerp(
+                                       start = 0.85f,
+                                       stop = 1f,
+                                       fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                   )
+
+                                   alpha = lerp(
+                                       start = 0.5f,
+                                       stop = 1f,
+                                       fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                   )
+
+                               }
+                       ) {
+                           Box (
+
+                           ){
+
+                               Image(
+                                   painter = imageSlider[page],
+                                   contentDescription = null,
+                                   contentScale = ContentScale.Crop,
+                                   modifier = Modifier.fillMaxSize()
+                               )
+                               // Label at top-left
+                               Box(
+                                   modifier = Modifier
+                                       .padding(8.dp)
+                                       .background(
+                                           color = Color.Magenta,
+                                           shape = RoundedCornerShape(8.dp)
+                                       )
+                                       .padding(horizontal = 4.dp, vertical = 2.dp)
+                               ) {
+                                   Text(
+                                       text = "Featured",
+                                       color = Color.White,
+                                       fontSize = 15.sp,
+                                       fontWeight = FontWeight.ExtraBold
+                                   )
+                               }
+                           }
+
+                       }
+                   }
+
+                   HorizontalPagerIndicator(
+                       pagerState = pagerState,
+                       modifier = Modifier
+                           .align(Alignment.CenterHorizontally)
+                           .padding(5.dp)
+                   )
+                   Text(
+                       text = "What would you like to have today?",
+                       fontSize = 17.sp,
+                       modifier = Modifier.padding(bottom = 8.dp),
+                       fontFamily = FontFamily.Serif,
+                       fontWeight = FontWeight.ExtraBold
+                   )
+               }
+           }
+        }
         if (viewModel.foods.value.isEmpty()) {
             item {
                 // Display a message or placeholder content for empty data
@@ -520,14 +552,32 @@ fun FoodList(viewModel: FoodsViewModel = viewModel()) {
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     // Load the image using Coil from the provided URL
-                    Image(
-                        painter = rememberImagePainter(data = foodItem.image),
-                        contentDescription = "Food Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                  Box {
+                      Image(
+                          painter = rememberImagePainter(data = foodItem.image),
+                          contentDescription = "Food Image",
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .height(150.dp),
+                          contentScale = ContentScale.Crop
+                      )
+                      Box(
+                          modifier = Modifier
+                              .padding(8.dp)
+                              .background(
+                                  color = Color.Magenta,
+                                  shape = RoundedCornerShape(8.dp)
+                              )
+                              .padding(horizontal = 4.dp, vertical = 2.dp)
+                      ) {
+                          Text(
+                              text = foodItem.category,
+                              color = Color.White,
+                              fontSize = 15.sp,
+                              fontWeight = FontWeight.ExtraBold
+                          )
+                      }
+                  }
 
 
                     // Rest of your card content using the foodItem details
