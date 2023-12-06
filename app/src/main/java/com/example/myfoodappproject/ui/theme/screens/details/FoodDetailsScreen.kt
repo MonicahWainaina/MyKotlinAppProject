@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
+
 
 @Composable
 fun FoodDetailsScreen(foodItem: FoodItem) {
@@ -100,7 +101,7 @@ fun FoodDetailsScreen(foodItem: FoodItem) {
             ) {
                 // Minus button
                 IconButton(onClick = { /* Handle subtraction */ }) {
-                    Icon(Icons.Rounded.Check, contentDescription = "Minus")
+                    Icon(Icons.Outlined.Remove, contentDescription = "Minus")
                 }
 
                 // Text showing quantity (can be replaced with your logic to display quantity)
