@@ -3,6 +3,7 @@ package com.example.myfoodappproject
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,9 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myfoodappproject.navigation.AppNavHost
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
+import com.example.myfoodappproject.ui.theme.screens.home.FoodsViewModel
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
+    private val viewModel by viewModels<FoodsViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -22,7 +25,7 @@ class MainActivity : ComponentActivity() {
             MyFoodAppProjectTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    AppNavHost()
+                    AppNavHost(viewModel = viewModel)
                 }
             }
         }
@@ -43,6 +46,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     MyFoodAppProjectTheme {
-        AppNavHost()
+
     }
 }

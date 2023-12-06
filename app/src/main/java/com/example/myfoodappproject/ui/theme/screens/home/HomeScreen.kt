@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -306,7 +307,7 @@ fun HomeScreen(navController: NavHostController){
                                 containerColor = Color.White
                             )
                         )
-                        FoodList(viewModel = viewModel)
+                        FoodList(viewModel = viewModel,navController)
                     }
                 },
                 floatingActionButton = {
@@ -351,6 +352,7 @@ data class NavigationItem(
 )
 
 data class FoodItem(
+    val customId: String,
     val category: String,
     val description: String,
     val image: String,
@@ -358,7 +360,7 @@ data class FoodItem(
     val price: Int
 ) {
     // Secondary constructor with no-argument initialization
-    constructor() : this("", "", "", "", 0)
+    constructor() : this("", "", "", "", "", 0)
 }
 
 
@@ -400,12 +402,16 @@ class FoodsViewModel : ViewModel() {
             }
         })
     }
+    // Add a function to fetch a FoodItem by its customId
+    fun getFoodItemById(customId: String): FoodItem? {
+        return foods.value.find { it.customId == customId }
+    }
 
 }
 
 
 @Composable
-fun FoodList(viewModel: FoodsViewModel = viewModel()) {
+fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostController) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 5.dp)
     ) {
@@ -538,6 +544,7 @@ fun FoodList(viewModel: FoodsViewModel = viewModel()) {
             }
         } else {
             items(viewModel.foods.value) { foodItem ->
+
                 Card(
                     modifier = Modifier
                         .padding(8.dp)
@@ -548,7 +555,10 @@ fun FoodList(viewModel: FoodsViewModel = viewModel()) {
                             shape = RoundedCornerShape(12.dp),
                             ambientColor = Color.Magenta,
                             spotColor = Color.Magenta
-                        ),
+                        )
+                        .clickable {
+                            navController.navigate("food_details/${foodItem.customId}")
+                        },
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     // Load the image using Coil from the provided URL
@@ -602,9 +612,10 @@ fun FoodList(viewModel: FoodsViewModel = viewModel()) {
                             Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
-                                text = "$${foodItem.price}", // Display price here
+                                text = "Kshs: ${foodItem.price}", // Display price here
                                 fontSize = 16.sp,
-                                color = Color.Gray
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
                             )
                         }
 
