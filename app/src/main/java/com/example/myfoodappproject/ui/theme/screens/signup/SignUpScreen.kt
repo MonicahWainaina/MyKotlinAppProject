@@ -1,5 +1,8 @@
 package com.example.foodapp.ui.theme.screens.signup
 
+import android.content.Context
+import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +47,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myfoodappproject.R
 import com.example.myfoodappproject.navigation.ROUTE_LOGIN
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
+import com.google.firebase.auth.FirebaseAuth
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,34 +80,34 @@ fun SignUpScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Title and Register text
+            Text(
+                text = "Kikwetu Dishes",
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 52.sp,
+                    fontFamily = FontFamily.Cursive,
+                    fontWeight = FontWeight.Bold
+                ),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = "Kikwetu Dishes",
+                    text = "Register",
                     style = TextStyle(
                         color = Color.White,
-                        fontSize = 52.sp,
-                        fontFamily = FontFamily.Cursive,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     ),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Register",
-                        style = TextStyle(
-                            color = Color.White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
             // TextFields for Full Name, Email, and Password
@@ -139,7 +145,7 @@ fun SignUpScreen(navController: NavHostController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = email,
@@ -162,7 +168,7 @@ fun SignUpScreen(navController: NavHostController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -177,6 +183,7 @@ fun SignUpScreen(navController: NavHostController) {
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
                     ),
+                    visualTransformation = PasswordVisualTransformation(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         textColor = Color.White,
                         focusedBorderColor = Color.Magenta, // Change the focused border color
@@ -184,54 +191,218 @@ fun SignUpScreen(navController: NavHostController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(50.dp))
                 // TextField with icon and label for Email
                 // ...
 
                 // TextField with icon and label for Password
                 // ...
-            }
 
-            // Button for Register
-            Button(
-                onClick = { /* Your register logic */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(Color.Magenta)
-            ) {
-                Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            }
-            // Text for Already Registered
-            Row(
-                modifier = Modifier
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
 
-                Text(
-                    text = "Already registered? ",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp
+                // Button for Register
+                val auth = FirebaseAuth.getInstance()
+                // Inside your SignUpScreen composable
+                val context = LocalContext.current
+
+                RegisterButton(
+                    context = context,
+                    /*onClick = {
+                        if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email)
+                                .matches() && password.length >= 6
+                        ) {
+                            // Proceed with registration logic
+                            auth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener { task ->
+                                    // ... Registration logic as before
+                                    Toast.makeText(
+                                        context,
+                                        "Registration Successful",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    navController.navigate(ROUTE_LOGIN)
+                                }
+                                }
+                         else {
+                            // Display error or indicate required fields
+                            if (name.isEmpty()) {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter your name",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter a valid email address",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else if (password.length < 6) {
+                                Toast.makeText(
+                                    context,
+                                    "Password must be at least 6 characters",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Please fill all fields correctly",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }*/
+                    onClick = {
+                        if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email)
+                                .matches() && password.length >= 6
+                        ) {
+                            auth.fetchSignInMethodsForEmail(email).addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val signInMethods = task.result?.signInMethods
+                                    if (signInMethods.isNullOrEmpty()) {
+                                        // Email doesn't exist, proceed with registration
+                                        auth.createUserWithEmailAndPassword(email, password)
+                                            .addOnCompleteListener { registerTask ->
+                                                if (registerTask.isSuccessful) {
+                                                    // Registration successful, show toast and navigate
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Registration Successful",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    navController.navigate(ROUTE_LOGIN)
+                                                } else {
+                                                    // Registration failed
+                                                    Toast.makeText(
+                                                        context,
+                                                        "User with this email already exists!",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } else {
+                                        // Email already exists, show toast
+                                        Toast.makeText(
+                                            context,
+                                            "User with this email already exists!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                } else {
+                                    // Error fetching sign-in methods
+                                    Toast.makeText(
+                                        context,
+                                        "Error checking email existence!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        } else {
+                            // Display error or indicate required fields
+                            if (name.isEmpty()) {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter your name",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter a valid email address",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else if (password.length < 6) {
+                                Toast.makeText(
+                                    context,
+                                    "Password must be at least 6 characters",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Please fill all fields correctly",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    },
                 )
-                TextButton(
-                    onClick = { navController.navigate(ROUTE_LOGIN) },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Magenta,
-                        containerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(start = 4.dp)
-                ) {
-                    Text(text = "Sign In", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                }
 
+                /*     Button(
+                     onClick = {
+                         // Perform registration logic here
+                         auth.createUserWithEmailAndPassword(email, password)
+                             .addOnCompleteListener { task ->
+                                 if (task.isSuccessful) {
+                                     // Registration successful
+                                     // Navigate to success screen or handle accordingly
+                                     navController.navigate(ROUTE_LOGIN) // Replace ROUTE_SUCCESS with your success route
+                                 } else {
+                                     // Registration failed, display error message or handle accordingly
+                                     // Example: Show a snackbar with an error message
+                                     // Replace with your actual error handling logic
+                                     // SnackbarHost needs to be set up in the parent composable
+                                     val errorMessage = "Registration failed. Please try again."
+                                     Toast.makeText(
+                                         LocalContext.current,
+                                         errorMessage,
+                                         Toast.LENGTH_SHORT
+                                     ).show()
+                                 }
+                             }
+                     },
+                     modifier = Modifier
+                         .fillMaxWidth()
+                         .height(48.dp),
+                     colors = ButtonDefaults.buttonColors(Color.Magenta)
+                 ) {
+                     Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                 }*/
+                // Text for Already Registered
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = "Already registered? ",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
+                    )
+                    TextButton(
+                        onClick = { navController.navigate(ROUTE_LOGIN) },
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = Color.Magenta,
+                            containerColor = Color.Transparent
+                        ),
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
+                        Text(text = "Sign In", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    }
+
+                }
             }
         }
-
     }
 }
+@Composable
+fun RegisterButton(
+    context: Context,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        colors = ButtonDefaults.buttonColors(Color.Magenta)
+    ) {
+        Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+    }
+}
+
 @Composable
 @Preview(showBackground = true)
 fun SignUpSccreenPreview(){

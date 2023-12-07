@@ -95,7 +95,7 @@ fun WelcomeScreen(navController: NavController) {
                     Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 17.sp)
                 }
 
-                Spacer(modifier = Modifier.height(8.dp)) // Adjust the space between buttons
+                Spacer(modifier = Modifier.height(5.dp)) // Adjust the space between buttons
 
                 TextButton(
                     onClick = {navController.navigate(ROUTE_LOGIN)},

@@ -17,6 +17,7 @@ import com.example.myfoodappproject.ui.theme.screens.details.FoodDetailsScreen
 import com.example.myfoodappproject.ui.theme.screens.home.FoodsViewModel
 import com.example.myfoodappproject.ui.theme.screens.home.HomeScreen
 import com.example.myfoodappproject.ui.theme.screens.orders.OrdersScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AppNavHost(
@@ -39,7 +40,7 @@ fun AppNavHost(
         }
 
         composable(ROUTE_LOGIN){
-            LoginScreen(navController = navController)
+            LoginScreen(navController = navController, auth = FirebaseAuth.getInstance())
         }
         composable(ROUTE_HOME){
             HomeScreen(navController = navController)
