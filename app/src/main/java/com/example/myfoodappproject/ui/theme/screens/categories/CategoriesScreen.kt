@@ -1,14 +1,20 @@
 package com.example.myfoodappproject.ui.theme.screens.categories
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
@@ -21,6 +27,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,13 +52,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.myfoodappproject.R
 import com.example.myfoodappproject.navigation.ROUTE_CART
 import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
@@ -99,6 +112,11 @@ fun CategoriesScreen(navController: NavHostController){
         var selectedItemIndex by rememberSaveable {
             mutableStateOf(0)
         }
+        val categories = listOf(
+            Category("Breakfast", R.drawable.breakfast),
+            Category("Lunch", R.drawable.nyamachomaplatter),
+            Category("Dinner", R.drawable.popularkenyan)
+        )
         ModalNavigationDrawer(
             drawerContent = {
                 ModalDrawerSheet{
@@ -197,15 +215,75 @@ fun CategoriesScreen(navController: NavHostController){
                     )
                 },
                 content = {
-                    Text(
+                   /* Text(
                         modifier = Modifier.padding(it),
                         text = "CategoriesScreen"
-                    )
+                    )*/
+                    Column (
+                        modifier = Modifier
+                            .padding(16.dp).padding(it) // Padding around the Column
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()) // Enable scrolling
+                            .padding(bottom = 16.dp) // Padding at the bottom
+                    ) {
+                        categories.forEach { category ->
+                            CategoryCard(category.name, category.imageResId)
+                            Spacer(modifier = Modifier.height(16.dp)) // Space between cards
+                        }
+                    }
                 }
             )
         }
     }
 }
+
+@Composable
+fun CategoryCard(categoryName: String, imageResId: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth() // Occupy entire width
+            .aspectRatio(16f/9f) // Aspect ratio
+            .clip(RoundedCornerShape(16.dp)) // Rounded corners
+            .border(1.dp, Color.Magenta, RoundedCornerShape(16.dp)) // Magenta border
+            .shadow(8.dp, shape = RoundedCornerShape(16.dp)) // Shadow
+            .padding(8.dp) // Padding inside the card
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Image
+            androidx.compose.foundation.Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = categoryName,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            // Dark overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)) // Adjust alpha for darkness
+            )
+
+            // Text overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = categoryName,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+            }
+        }
+    }
+}
+
 data class NavigationItem(
     val title: String,
     val unselectedIcon: ImageVector,
@@ -213,6 +291,8 @@ data class NavigationItem(
     val badgeCount: Int? = null,
     var route: String
 )
+data class Category(val name: String, val imageResId: Int)
+
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview(){

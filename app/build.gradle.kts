@@ -83,8 +83,7 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.0-beta02")
 
     implementation ("com.google.firebase:firebase-database-ktx")
+    implementation ("io.coil-kt:coil-compose:1.4.0")
     implementation ("com.google.firebase:firebase-auth:22.3.0")
-
-
 
 }
