@@ -47,7 +47,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myfoodappproject.R
 import com.example.myfoodappproject.navigation.ROUTE_LOGIN
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.database
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,55 +208,11 @@ fun SignUpScreen(navController: NavHostController) {
 
                 RegisterButton(
                     context = context,
-                    /*onClick = {
-                        if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email)
-                                .matches() && password.length >= 6
-                        ) {
-                            // Proceed with registration logic
-                            auth.createUserWithEmailAndPassword(email, password)
-                                .addOnCompleteListener { task ->
-                                    // ... Registration logic as before
-                                    Toast.makeText(
-                                        context,
-                                        "Registration Successful",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    navController.navigate(ROUTE_LOGIN)
-                                }
-                                }
-                         else {
-                            // Display error or indicate required fields
-                            if (name.isEmpty()) {
-                                Toast.makeText(
-                                    context,
-                                    "Please enter your name",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                Toast.makeText(
-                                    context,
-                                    "Please enter a valid email address",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else if (password.length < 6) {
-                                Toast.makeText(
-                                    context,
-                                    "Password must be at least 6 characters",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Please fill all fields correctly",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }*/
                     onClick = {
-                        if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email)
-                                .matches() && password.length >= 6
-                        ) {
+                        // Validate fields before attempting registration
+                        // Validate fields before attempting registration
+                        if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length >= 6) {
+                            // Check if email exists and register user if not
                             auth.fetchSignInMethodsForEmail(email).addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     val signInMethods = task.result?.signInMethods
@@ -263,24 +221,43 @@ fun SignUpScreen(navController: NavHostController) {
                                         auth.createUserWithEmailAndPassword(email, password)
                                             .addOnCompleteListener { registerTask ->
                                                 if (registerTask.isSuccessful) {
-                                                    // Registration successful, show toast and navigate
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Registration Successful",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                    navController.navigate(ROUTE_LOGIN)
+                                                    // Registration successful, add user data to the database
+                                                    val firebaseUser = auth.currentUser
+                                                    val firebaseDatabase = Firebase.database
+                                                    val userReference = firebaseDatabase.getReference("Users").child(firebaseUser?.uid ?: "")
+                                                    val userData = User(name, email)
+
+                                                    userReference.setValue(userData)
+                                                        .addOnCompleteListener { userCreationTask ->
+                                                            if (userCreationTask.isSuccessful) {
+                                                                // User data successfully added to the database
+                                                                // Show toast and navigate to login screen
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Registration Successful",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                                navController.navigate(ROUTE_LOGIN)
+                                                            } else {
+                                                                // Handle failure to add user data to the database
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Error adding user data to database",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
+                                                        }
                                                 } else {
                                                     // Registration failed
                                                     Toast.makeText(
                                                         context,
-                                                        "User with this email already exists!",
+                                                        "Registration Failed",
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
                                             }
                                     } else {
-                                        // Email already exists, show toast
+                                        // Email already exists
                                         Toast.makeText(
                                             context,
                                             "User with this email already exists!",
@@ -296,67 +273,12 @@ fun SignUpScreen(navController: NavHostController) {
                                     ).show()
                                 }
                             }
-                        } else {
-                            // Display error or indicate required fields
-                            if (name.isEmpty()) {
-                                Toast.makeText(
-                                    context,
-                                    "Please enter your name",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                Toast.makeText(
-                                    context,
-                                    "Please enter a valid email address",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else if (password.length < 6) {
-                                Toast.makeText(
-                                    context,
-                                    "Password must be at least 6 characters",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Please fill all fields correctly",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                        }  else {
+                            // Fields are incomplete or invalid
                         }
                     },
                 )
 
-                /*     Button(
-                     onClick = {
-                         // Perform registration logic here
-                         auth.createUserWithEmailAndPassword(email, password)
-                             .addOnCompleteListener { task ->
-                                 if (task.isSuccessful) {
-                                     // Registration successful
-                                     // Navigate to success screen or handle accordingly
-                                     navController.navigate(ROUTE_LOGIN) // Replace ROUTE_SUCCESS with your success route
-                                 } else {
-                                     // Registration failed, display error message or handle accordingly
-                                     // Example: Show a snackbar with an error message
-                                     // Replace with your actual error handling logic
-                                     // SnackbarHost needs to be set up in the parent composable
-                                     val errorMessage = "Registration failed. Please try again."
-                                     Toast.makeText(
-                                         LocalContext.current,
-                                         errorMessage,
-                                         Toast.LENGTH_SHORT
-                                     ).show()
-                                 }
-                             }
-                     },
-                     modifier = Modifier
-                         .fillMaxWidth()
-                         .height(48.dp),
-                     colors = ButtonDefaults.buttonColors(Color.Magenta)
-                 ) {
-                     Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                 }*/
                 // Text for Already Registered
                 Row(
                     modifier = Modifier
@@ -402,6 +324,11 @@ fun RegisterButton(
         Text(text = "Register", fontWeight = FontWeight.Bold, fontSize = 17.sp)
     }
 }
+data class User(
+    val name: String = "",
+    val email: String = ""
+)
+
 
 @Composable
 @Preview(showBackground = true)

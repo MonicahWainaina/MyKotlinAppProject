@@ -80,6 +80,7 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.6.0-beta02")
 
     implementation ("com.google.firebase:firebase-database-ktx")
     implementation ("com.google.firebase:firebase-auth:22.3.0")

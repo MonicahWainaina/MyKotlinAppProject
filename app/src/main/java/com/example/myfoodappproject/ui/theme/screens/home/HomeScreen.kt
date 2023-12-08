@@ -102,6 +102,7 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -111,13 +112,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlin.math.absoluteValue
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class,
     ExperimentalFoundationApi::class
 )
 @Composable
-fun HomeScreen(navController: NavHostController){
+fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewModel = viewModel()){
     var cartItems by rememberSaveable { mutableStateOf(0) } // Track the number of items in the cart
 
     // Function to navigate to the cart screen
@@ -132,6 +132,19 @@ fun HomeScreen(navController: NavHostController){
     }
 
     val viewModel: FoodsViewModel = viewModel()
+
+
+    var userName by remember { mutableStateOf("User") }
+
+    // Fetch the user data
+    val userUid = FirebaseAuth.getInstance().currentUser?.uid
+    userUid?.let {
+        userDataViewModel.fetchUserData(it) { user ->
+            user?.let {
+                userName = user.name
+            }
+        }
+    }
 
     val items = listOf(
         NavigationItem(
@@ -189,7 +202,7 @@ fun HomeScreen(navController: NavHostController){
                                         Spacer(modifier = Modifier.width(8.dp))
                                         // Text saying "Welcome user"
                                         Text(
-                                            text = "Welcome user",
+                                            text = "Welcome $userName",
                                             color = Color.White, // Set text color to white
                                             fontWeight = FontWeight.Bold
                                         )
@@ -272,7 +285,7 @@ fun HomeScreen(navController: NavHostController){
                             .padding(it)
                     ) {
                         Text(
-                            text = "Hello User",
+                            text = "Hello $userName",
                             fontSize = 20.sp,
                             modifier = Modifier.padding(bottom = 4.dp),
                             fontFamily = FontFamily.Serif,
@@ -363,9 +376,10 @@ data class FoodItem(
     constructor() : this("", "", "", "", "", 0)
 }
 
-
-
-
+data class User(
+    val name: String = "",
+    val email: String = ""
+)
 
 
 class FoodsViewModel : ViewModel() {
@@ -407,6 +421,32 @@ class FoodsViewModel : ViewModel() {
         return foods.value.find { it.customId == customId }
     }
 
+}
+class UserDataViewModel : ViewModel() {
+    private val database = Firebase.database // Replace with your Firebase database reference
+
+    private val _user = mutableStateOf<User?>(null)
+    val user: State<User?> = _user
+    fun setUser(userData: User) {
+        _user.value = userData
+    }
+
+
+
+    fun fetchUserData(uid: String, callback: (User?) -> Unit) {
+        val userRef = database.getReference("Users").child(uid)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userData = snapshot.getValue(User::class.java)
+                callback(userData) // Pass the retrieved user data to the callback
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle the error scenario if needed
+                callback(null) // Pass null to indicate an error
+            }
+        })
+    }
 }
 
 
