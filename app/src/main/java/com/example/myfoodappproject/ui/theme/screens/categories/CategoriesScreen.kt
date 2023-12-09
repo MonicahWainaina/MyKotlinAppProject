@@ -2,6 +2,7 @@ package com.example.myfoodappproject.ui.theme.screens.categories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,7 +114,7 @@ fun CategoriesScreen(navController: NavHostController){
             mutableStateOf(0)
         }
         val categories = listOf(
-            Category("Breakfast", R.drawable.breakfast),
+            Category("BreakFast", R.drawable.breakfast),
             Category("Lunch", R.drawable.nyamachomaplatter),
             Category("Dinner", R.drawable.popularkenyan)
         )
@@ -227,7 +228,7 @@ fun CategoriesScreen(navController: NavHostController){
                             .padding(bottom = 16.dp) // Padding at the bottom
                     ) {
                         categories.forEach { category ->
-                            CategoryCard(category.name, category.imageResId)
+                            CategoryCard(category.name, category.imageResId, navController = navController)
                             Spacer(modifier = Modifier.height(16.dp)) // Space between cards
                         }
                     }
@@ -238,7 +239,7 @@ fun CategoriesScreen(navController: NavHostController){
 }
 
 @Composable
-fun CategoryCard(categoryName: String, imageResId: Int) {
+fun CategoryCard(categoryName: String, imageResId: Int,navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth() // Occupy entire width
@@ -249,7 +250,11 @@ fun CategoryCard(categoryName: String, imageResId: Int) {
             .padding(8.dp) // Padding inside the card
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().clickable {
+                navController.navigate("foodItemsByCategory/$categoryName") {
+                    launchSingleTop = true
+                }
+            }
         ) {
             // Image
             androidx.compose.foundation.Image(

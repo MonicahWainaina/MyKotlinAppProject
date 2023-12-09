@@ -388,6 +388,7 @@ class FoodsViewModel : ViewModel() {
     private var _fooditems = mutableStateOf<List<FoodItem>>(emptyList())
     val foods: State<List<FoodItem>> = _fooditems
 
+
     init {
         getFoods()
     }
@@ -421,6 +422,9 @@ class FoodsViewModel : ViewModel() {
         return foods.value.find { it.customId == customId }
     }
 
+    fun getFoodItemsByCategory(category: String): List<FoodItem> {
+        return foods.value.filter { it.category == category }
+    }
 }
 class UserDataViewModel : ViewModel() {
     private val database = Firebase.database // Replace with your Firebase database reference

@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
@@ -58,7 +61,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -216,7 +218,7 @@ fun CartScreen(navController: NavHostController){
                     )
                 },
                 content = {
-                    Column(
+                    /*Column(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Box(
@@ -353,7 +355,7 @@ fun CartScreen(navController: NavHostController){
                                         // Text button to remove item from cart
 
                                         TextButton(
-                                            onClick = { /* Remove item from cart logic */ },
+                                            onClick = { *//* Remove item from cart logic *//* },
                                             modifier = Modifier.align(Alignment.CenterHorizontally),
                                             colors = ButtonDefaults.textButtonColors(contentColor = Color.Transparent)
                                         ) {
@@ -395,7 +397,7 @@ fun CartScreen(navController: NavHostController){
 
                             // Checkout button
                             Button(
-                                onClick = { /* Handle checkout logic */ },
+                                onClick = { *//* Handle checkout logic *//* },
                                 modifier = Modifier
                                     .fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(Color.Magenta)
@@ -407,6 +409,13 @@ fun CartScreen(navController: NavHostController){
                                 )
                             }
                         }
+                    }*/
+                    Column (
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(it)
+                    ) {
+                        CartScreen()
                     }
                 }
             )
@@ -420,6 +429,201 @@ data class NavigationItem(
     val badgeCount: Int? = null,
     var route: String
 )
+@Composable
+fun CartScreen() {
+    val cartItems = listOf(
+        CartItem("Item 1", "Kshs 100", R.drawable.kenyanfood),
+        CartItem("Item 2", "Kshs 150", R.drawable.pancakes),
+        // Add more items as needed
+    )
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(cartItems) { item ->
+            CartItemCard(item)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        item {
+            // Total price section
+            // Your existing Total Price and Checkout button UI here
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Total Price:",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+
+                    // Replace totalPrice with your actual calculated total price
+                    Text(
+                        text = "Kshs", // Assuming totalPrice is a String or a formatted value
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Magenta
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Checkout button
+                Button(
+                    onClick = {  },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(Color.Magenta)
+                        ) {
+                            Text(
+                                text = "Checkout",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+            }
+        }
+    }
+}
+
+@Composable
+fun CartItemCard(cartItem: CartItem) {
+    var quantity by remember { mutableStateOf(1) }
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(8.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            // Item image on the far left
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(shape = RoundedCornerShape(8.dp))
+                    .background(Color.White)
+            ) {
+                // Replace with your actual item image or icon
+                Image(
+                    painter = painterResource(id = cartItem.imageResId),
+                    contentDescription = "Item Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = cartItem.name,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold
+            )
+
+            // Item name, price, quantity, and remove button
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.End
+
+            ) {
+
+                Text(
+                    text = cartItem.price,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Quantity indicators and buttons
+                // ... (Your existing quantity UI here)
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 1.dp)
+                        .background(
+                            Color.LightGray,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                ) {
+                    // Remove icon and functionality
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .background(
+                                Color.Magenta,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable {
+                                if (quantity > 1) {
+                                    quantity -= 1
+                                }
+                            }
+                    ) {
+                        Icon(
+                            Icons.Default.Remove,
+                            contentDescription = "Remove",
+                            modifier = Modifier.align(Alignment.Center),
+                            tint = Color.White
+                        )
+                    }
+
+                    // Quantity indicator
+                    Text(
+                        text = "$quantity",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .align(alignment = Alignment.CenterVertically),
+                    )
+
+                    // Add icon and functionality
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .background(
+                                Color.Magenta,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable {
+                                quantity += 1
+                            }
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add",
+                            modifier = Modifier.align(Alignment.Center),
+                            tint = Color.White
+                        )
+                    }
+                }
+                // Remove item button
+                TextButton(
+                    onClick = { /* Remove item logic */ },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Transparent)
+                ) {
+                    Text(text = "Delete", color = Color.Magenta, fontSize = 17.sp)
+                }
+            }
+        }
+    }
+}
+
+data class CartItem(val name: String, val price: String, val imageResId: Int)
+
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview(){

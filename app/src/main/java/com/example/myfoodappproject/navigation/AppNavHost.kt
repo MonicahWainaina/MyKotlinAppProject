@@ -13,6 +13,7 @@ import com.example.foodapp.ui.theme.screens.signup.SignUpScreen
 import com.example.foodapp.ui.theme.screens.welcome.WelcomeScreen
 import com.example.myfoodappproject.ui.theme.screens.cart.CartScreen
 import com.example.myfoodappproject.ui.theme.screens.categories.CategoriesScreen
+import com.example.myfoodappproject.ui.theme.screens.categoryitems.FoodItemsByCategory
 import com.example.myfoodappproject.ui.theme.screens.details.FoodDetailsScreen
 import com.example.myfoodappproject.ui.theme.screens.home.FoodsViewModel
 import com.example.myfoodappproject.ui.theme.screens.home.HomeScreen
@@ -64,11 +65,18 @@ fun AppNavHost(
                 val foodItem = viewModel.getFoodItemById(itemId)
 
                 if (foodItem != null) {
-                    FoodDetailsScreen(foodItem = foodItem)
+                    FoodDetailsScreen(foodItem = foodItem,navController)
                 } else {
                     // Handle case where foodItem is null or not found
                 }
             }
+        }
+        composable("foodItemsByCategory/{categoryName}") { navBackStackEntry ->
+            // Extract category name from navBackStackEntry
+            val categoryName = navBackStackEntry.arguments?.getString("category")
+
+            // Render your FoodItemsByCategory screen using categoryName
+            FoodItemsByCategory(navController)
         }
 
 
