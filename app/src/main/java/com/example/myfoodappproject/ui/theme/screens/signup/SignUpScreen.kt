@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +57,10 @@ import com.google.firebase.database.database
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(navController: NavHostController) {
+    // Button for Register
+    val auth = FirebaseAuth.getInstance()
+    // Inside your SignUpScreen composable
+    val context = LocalContext.current
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -138,7 +144,13 @@ fun SignUpScreen(navController: NavHostController) {
                         )
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            registerUser(name, email, password, auth, navController, context)
+                        }
                     ),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         textColor = Color.White,
@@ -161,7 +173,13 @@ fun SignUpScreen(navController: NavHostController) {
                         )
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            registerUser(name, email, password, auth, navController, context)
+                        }
                     ),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         textColor = Color.White,
@@ -183,7 +201,13 @@ fun SignUpScreen(navController: NavHostController) {
                         )
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            registerUser(name, email, password, auth, navController, context)
+                        }
                     ),
                     visualTransformation = PasswordVisualTransformation(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -201,81 +225,14 @@ fun SignUpScreen(navController: NavHostController) {
                 // ...
 
 
-                // Button for Register
-                val auth = FirebaseAuth.getInstance()
-                // Inside your SignUpScreen composable
-                val context = LocalContext.current
+
 
                 RegisterButton(
                     context = context,
                     onClick = {
                         // Validate fields before attempting registration
                         // Validate fields before attempting registration
-                        if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length >= 6) {
-                            // Check if email exists and register user if not
-                            auth.fetchSignInMethodsForEmail(email).addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    val signInMethods = task.result?.signInMethods
-                                    if (signInMethods.isNullOrEmpty()) {
-                                        // Email doesn't exist, proceed with registration
-                                        auth.createUserWithEmailAndPassword(email, password)
-                                            .addOnCompleteListener { registerTask ->
-                                                if (registerTask.isSuccessful) {
-                                                    // Registration successful, add user data to the database
-                                                    val firebaseUser = auth.currentUser
-                                                    val firebaseDatabase = Firebase.database
-                                                    val userReference = firebaseDatabase.getReference("Users").child(firebaseUser?.uid ?: "")
-                                                    val userData = User(name, email)
-
-                                                    userReference.setValue(userData)
-                                                        .addOnCompleteListener { userCreationTask ->
-                                                            if (userCreationTask.isSuccessful) {
-                                                                // User data successfully added to the database
-                                                                // Show toast and navigate to login screen
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Registration Successful",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
-                                                                navController.navigate(ROUTE_LOGIN)
-                                                            } else {
-                                                                // Handle failure to add user data to the database
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Error adding user data to database",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
-                                                            }
-                                                        }
-                                                } else {
-                                                    // Registration failed
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Registration Failed",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            }
-                                    } else {
-                                        // Email already exists
-                                        Toast.makeText(
-                                            context,
-                                            "User with this email already exists!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                } else {
-                                    // Error fetching sign-in methods
-                                    Toast.makeText(
-                                        context,
-                                        "Error checking email existence!",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }  else {
-                            // Fields are incomplete or invalid
-                        }
+                        registerUser(name, email, password, auth, navController, context)
                     },
                 )
 
@@ -329,6 +286,73 @@ data class User(
     val email: String = ""
 )
 
+fun registerUser(name:String,email: String, password: String,auth: FirebaseAuth,navController: NavHostController,context: Context){
+    if (name.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length >= 6) {
+        // Check if email exists and register user if not
+        auth.fetchSignInMethodsForEmail(email).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val signInMethods = task.result?.signInMethods
+                if (signInMethods.isNullOrEmpty()) {
+                    // Email doesn't exist, proceed with registration
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { registerTask ->
+                            if (registerTask.isSuccessful) {
+                                // Registration successful, add user data to the database
+                                val firebaseUser = auth.currentUser
+                                val firebaseDatabase = Firebase.database
+                                val userReference = firebaseDatabase.getReference("Users").child(firebaseUser?.uid ?: "")
+                                val userData = User(name, email)
+
+                                userReference.setValue(userData)
+                                    .addOnCompleteListener { userCreationTask ->
+                                        if (userCreationTask.isSuccessful) {
+                                            // User data successfully added to the database
+                                            // Show toast and navigate to login screen
+                                            Toast.makeText(
+                                                context,
+                                                "Registration Successful",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            navController.navigate(ROUTE_LOGIN)
+                                        } else {
+                                            // Handle failure to add user data to the database
+                                            Toast.makeText(
+                                                context,
+                                                "Error adding user data to database",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                            } else {
+                                // Registration failed
+                                Toast.makeText(
+                                    context,
+                                    "Registration Failed",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                } else {
+                    // Email already exists
+                    Toast.makeText(
+                        context,
+                        "User with this email already exists!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } else {
+                // Error fetching sign-in methods
+                Toast.makeText(
+                    context,
+                    "Error checking email existence!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }  else {
+        // Fields are incomplete or invalid
+    }
+}
 
 @Composable
 @Preview(showBackground = true)
