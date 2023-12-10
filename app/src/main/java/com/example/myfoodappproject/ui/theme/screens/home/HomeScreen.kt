@@ -121,14 +121,11 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
     var cartItems by rememberSaveable { mutableStateOf(0) } // Track the number of items in the cart
 
     // Function to navigate to the cart screen
-    val navigateToCart: () -> Unit = {
-        navController.navigate(ROUTE_CART)
-    }
+
 
     // Function to increment the number of items in the cart and navigate to the cart screen
     val addToCart: () -> Unit = {
         cartItems++
-        navigateToCart.invoke()
     }
 
     val viewModel: FoodsViewModel = viewModel()
@@ -320,12 +317,12 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
                                 containerColor = Color.White
                             )
                         )
-                        FoodList(viewModel = viewModel,navController)
+                        FoodList(viewModel = viewModel,navController,addToCart = addToCart)
                     }
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { addToCart.invoke() },
+                        onClick = { navController.navigate(ROUTE_CART)},
                         containerColor = Color.Magenta
                     ) {
                         Row(
@@ -455,7 +452,7 @@ class UserDataViewModel : ViewModel() {
 
 
 @Composable
-fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostController) {
+fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostController,addToCart: () -> Unit) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 5.dp)
     ) {
@@ -664,7 +661,7 @@ fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostContr
                         }
 
                         IconButton(
-                            onClick = {},
+                            onClick = { addToCart.invoke()},
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
