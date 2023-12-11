@@ -105,6 +105,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import kotlinx.coroutines.delay
@@ -376,11 +377,13 @@ data class FoodItem(
     val description: String,
     val image: String,
     val name: String,
-    val price: Int
+    val price: Int,
+    val quantity: Int = 1 // Default quantity to 1
 ) {
     // Secondary constructor with no-argument initialization
     constructor() : this("", "", "", "", "", 0)
 }
+
 
 data class User(
     val name: String = "",
@@ -530,6 +533,28 @@ class UserDataViewModel : ViewModel() {
         })
     }
     // Assuming you've retrieved the logged-in user ID
+    fun updateCartItemQuantity(userId: String, foodItemId: String, newQuantity: Int) {
+        val userCartRef = database.getReference("Users").child(userId).child("cart")
+        userCartRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val cartItems = snapshot.getValue(object : GenericTypeIndicator<List<FoodItem>>() {})
+                val updatedCartItems = cartItems?.map {
+                    if (it.customId == foodItemId) {
+                        it.copy(quantity = newQuantity)
+                    } else {
+                        it
+                    }
+                }
+                updatedCartItems?.let {
+                    userCartRef.setValue(updatedCartItems)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error if needed
+            }
+        })
+    }
 
 
 }

@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -244,6 +245,7 @@ data class NavigationItem(
 fun CartScreen(
     userDataViewModel: UserDataViewModel = viewModel()
 ) {
+    val userId = userDataViewModel.getUserId() ?: ""
     // Fetch cart items initially and whenever the user ID changes
     LaunchedEffect(key1 = userDataViewModel) {
         val userId = userDataViewModel.getUserId() ?: return@LaunchedEffect
@@ -253,13 +255,22 @@ fun CartScreen(
     // Observe changes in cart items
     val cartItemsState by userDataViewModel.cartItems.collectAsState()
 
-    // Total price calculation (Replace this logic with your actual total price)
-
+    // Calculate total price
+    val totalPrice = remember(cartItemsState) {
+        cartItemsState.map { it.price * it.quantity }.sum()
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         items(cartItemsState) { item ->
-            CartItemCard(item)
+            CartItemCard(
+                cartItem = item,
+                onQuantityChange = { newQuantity ->
+                    // Update the quantity of the item in the cart
+                    userDataViewModel.updateCartItemQuantity(userId, item.customId, newQuantity)
+                }
+
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
 
@@ -285,7 +296,7 @@ fun CartScreen(
 
                     // Replace totalPrice with your actual calculated total price
                     Text(
-                        text = "Kshs", // Assuming totalPrice is a String or a formatted value
+                        text = "Kshs $totalPrice",// Assuming totalPrice is a String or a formatted value
                         fontWeight = FontWeight.Bold,
                         color = Color.Magenta
                     )
@@ -312,8 +323,9 @@ fun CartScreen(
 }
 
 @Composable
-fun CartItemCard(cartItem: FoodItem) {
-    var quantity by remember { mutableStateOf(1) }
+fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit) {
+    var quantity by remember { mutableStateOf(cartItem.quantity) }
+
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -346,8 +358,11 @@ fun CartItemCard(cartItem: FoodItem) {
             Text(
                 text = cartItem.name,
                 color = Color.Black,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 1, // Restrict to a single line
+                overflow = TextOverflow.Ellipsis, // Use ellipsis for overflow
             )
+
 
             // Item name, price, quantity, and remove button
             Column(
@@ -357,7 +372,7 @@ fun CartItemCard(cartItem: FoodItem) {
             ) {
 
                 Text(
-                    text = "Kshs: ${cartItem.price}", // Display price here
+                    text = "Kshs: ${cartItem.price * cartItem.quantity}", // Display price here
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
@@ -385,6 +400,7 @@ fun CartItemCard(cartItem: FoodItem) {
                             .clickable {
                                 if (quantity > 1) {
                                     quantity -= 1
+                                    onQuantityChange(quantity) // Update the quantity using onQuantityChange
                                 }
                             }
                     ) {
@@ -417,6 +433,7 @@ fun CartItemCard(cartItem: FoodItem) {
                             )
                             .clickable {
                                 quantity += 1
+                                onQuantityChange(quantity) // Update the quantity using onQuantityChange
                             }
                     ) {
                         Icon(
@@ -442,13 +459,6 @@ fun CartItemCard(cartItem: FoodItem) {
 
 
 
-data class CartItem(
-    val customId: String,
-    val name: String,
-    val image: String,
-    val price: Int,
-    // Add other necessary fields for cart display
-)
 
 @Composable
 @Preview(showBackground = true)
