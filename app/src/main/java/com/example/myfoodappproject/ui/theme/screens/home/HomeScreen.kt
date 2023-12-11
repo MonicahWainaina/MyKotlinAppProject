@@ -146,6 +146,7 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
         }
     }
 
+
     val items = listOf(
         NavigationItem(
             title = "Home",
@@ -500,8 +501,35 @@ class UserDataViewModel : ViewModel() {
             }
         })
     }
+    // Inside UserDataViewModel
+    private val _cartItems = MutableStateFlow<List<FoodItem>>(emptyList())
+    val cartItems: StateFlow<List<FoodItem>> = _cartItems
 
+    // Function to fetch cart items and update StateFlow
+    fun fetchCartItems(userId: String) {
+        val userCartRef = database.getReference("Users").child(userId).child("cart")
+        userCartRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val items = mutableListOf<FoodItem>()
+                for (foodSnapshot in snapshot.children) {
+                    val foodItem = foodSnapshot.getValue(FoodItem::class.java)
+                    foodItem?.let {
+                        items.add(it)
+                        Log.d("ViewModel", "Fetching cart items for user: $it")
+                    }
+                }
+                _cartItems.value = items
+            }
 
+            override fun onCancelled(error: DatabaseError) {
+                // Handle the error if needed
+
+                Log.e(TAG, "Error fetching food items: ${error.message}")
+            }
+
+        })
+    }
+    // Assuming you've retrieved the logged-in user ID
 
 
 }

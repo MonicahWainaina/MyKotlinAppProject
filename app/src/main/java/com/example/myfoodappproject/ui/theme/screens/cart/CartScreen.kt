@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
@@ -52,6 +51,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,21 +65,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.myfoodappproject.R
+import coil.compose.rememberImagePainter
 import com.example.myfoodappproject.navigation.ROUTE_CART
 import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
 import com.example.myfoodappproject.navigation.ROUTE_ORDERS
 import com.example.myfoodappproject.navigation.ROUTE_WELCOME
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
+import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
 import com.example.myfoodappproject.ui.theme.screens.home.NavigationItem
+import com.example.myfoodappproject.ui.theme.screens.home.UserDataViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -218,199 +221,7 @@ fun CartScreen(navController: NavHostController){
                     )
                 },
                 content = {
-                    /*Column(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .height(620.dp)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.TopCenter
-                        ) {
-                            Card(
-                                modifier = Modifier
-                                    .width(370.dp)
-                                    .padding(vertical = 9.dp)
-                                    .padding(it)
-                                    .shadow(
-                                        12.dp,
-                                        shape = RoundedCornerShape(12.dp),
-                                        ambientColor = Color.Magenta,
-                                        spotColor = Color.Magenta
-                                    ),
-                                elevation = CardDefaults.cardElevation(4.dp),
-                                colors = CardDefaults.cardColors(Color.White)
-                            ) {
-                                Row(
-                                    modifier = Modifier.width(370.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Item image on the far left
-                                    Box(
-                                        modifier = Modifier
-                                            .size(120.dp)
-                                            .clip(shape = RoundedCornerShape(8.dp))
-                                            .background(Color.White)
-                                    ) {
-                                        // Replace with your actual item image or icon
-                                        Image(
-                                            painter = painterResource(id = R.drawable.samosas),
-                                            contentDescription = "Item Image",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
-                                    // Item name and price
-                                    Column(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Text(
-                                            text = "uhuhub",
-                                            color = Color.Black,
-                                            fontWeight = FontWeight.Bold
-                                        )
-
-                                        // Price of the item
-
-                                    }
-
-                                    // Vertical column for price, quantity icons, and remove button
-                                    Column(
-                                        modifier = Modifier.padding(start = 8.dp),
-                                    ) {
-                                        // Price
-                                        Text(
-                                            text = "Kshs : 2",
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                        )
-                                        Spacer(modifier = Modifier.height(15.dp))
-                                        // Quantity icons
-                                        // Add/subtract quantity icons logic here
-                                        // Replace with your actual icons and logic
-                                        Row(
-                                            modifier = Modifier
-                                                .padding(vertical = 1.dp)
-                                                .background(
-                                                    Color.LightGray,
-                                                    shape = RoundedCornerShape(10.dp)
-                                                )
-                                        ) {
-                                            // Remove icon and functionality
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(30.dp)
-                                                    .background(
-                                                        Color.Magenta,
-                                                        shape = RoundedCornerShape(10.dp)
-                                                    )
-                                                    .clickable {
-                                                        if (quantity > 1) {
-                                                            quantity -= 1
-                                                        }
-                                                    }
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.Remove,
-                                                    contentDescription = "Remove",
-                                                    modifier = Modifier.align(Alignment.Center),
-                                                    tint = Color.White
-                                                )
-                                            }
-
-                                            // Quantity indicator
-                                            Text(
-                                                text = "$quantity",
-                                                fontSize = 20.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.Black,
-                                                modifier = Modifier
-                                                    .padding(horizontal = 16.dp)
-                                                    .align(alignment = Alignment.CenterVertically),
-                                            )
-
-                                            // Add icon and functionality
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(30.dp)
-                                                    .background(
-                                                        Color.Magenta,
-                                                        shape = RoundedCornerShape(10.dp)
-                                                    )
-                                                    .clickable {
-                                                        quantity += 1
-                                                    }
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.Add,
-                                                    contentDescription = "Add",
-                                                    modifier = Modifier.align(Alignment.Center),
-                                                    tint = Color.White
-                                                )
-                                            }
-                                        }
-                                        // Text button to remove item from cart
-
-                                        TextButton(
-                                            onClick = { *//* Remove item from cart logic *//* },
-                                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Transparent)
-                                        ) {
-                                            Text(
-                                                text = "Delete",
-                                                color = Color.Magenta
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.Bottom,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "Total Price:",
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-
-                                // Replace totalPrice with your actual calculated total price
-                                Text(
-                                    text = "Kshs", // Assuming totalPrice is a String or a formatted value
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Magenta
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Checkout button
-                            Button(
-                                onClick = { *//* Handle checkout logic *//* },
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(Color.Magenta)
-                            ) {
-                                Text(
-                                    text = "Checkout",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }*/
-                    Column (
+            Column (
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(it)
@@ -430,17 +241,24 @@ data class NavigationItem(
     var route: String
 )
 @Composable
-fun CartScreen() {
-    val cartItems = listOf(
-        CartItem("Item 1", "Kshs 100", R.drawable.kenyanfood),
-        CartItem("Item 2", "Kshs 150", R.drawable.pancakes),
-        // Add more items as needed
-    )
+fun CartScreen(
+    userDataViewModel: UserDataViewModel = viewModel()
+) {
+    // Fetch cart items initially and whenever the user ID changes
+    LaunchedEffect(key1 = userDataViewModel) {
+        val userId = userDataViewModel.getUserId() ?: return@LaunchedEffect
+        userDataViewModel.fetchCartItems(userId)
+    }
+
+    // Observe changes in cart items
+    val cartItemsState by userDataViewModel.cartItems.collectAsState()
+
+    // Total price calculation (Replace this logic with your actual total price)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        items(cartItems) { item ->
+        items(cartItemsState) { item ->
             CartItemCard(item)
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -494,7 +312,7 @@ fun CartScreen() {
 }
 
 @Composable
-fun CartItemCard(cartItem: CartItem) {
+fun CartItemCard(cartItem: FoodItem) {
     var quantity by remember { mutableStateOf(1) }
     Card(
         modifier = Modifier
@@ -516,7 +334,7 @@ fun CartItemCard(cartItem: CartItem) {
             ) {
                 // Replace with your actual item image or icon
                 Image(
-                    painter = painterResource(id = cartItem.imageResId),
+                    painter = rememberImagePainter(data = cartItem.image),
                     contentDescription = "Item Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -539,7 +357,7 @@ fun CartItemCard(cartItem: CartItem) {
             ) {
 
                 Text(
-                    text = cartItem.price,
+                    text = "Kshs: ${cartItem.price}", // Display price here
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
@@ -622,7 +440,15 @@ fun CartItemCard(cartItem: CartItem) {
     }
 }
 
-data class CartItem(val name: String, val price: String, val imageResId: Int)
+
+
+data class CartItem(
+    val customId: String,
+    val name: String,
+    val image: String,
+    val price: Int,
+    // Add other necessary fields for cart display
+)
 
 @Composable
 @Preview(showBackground = true)

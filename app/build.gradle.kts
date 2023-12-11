@@ -75,7 +75,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
     implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
     implementation("com.google.firebase:firebase-analytics")
-    implementation ("io.coil-kt:coil-compose:1.3.2")
+    implementation ("io.coil-kt:coil-compose:1.4.0")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -85,5 +85,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-database-ktx")
     implementation ("io.coil-kt:coil-compose:1.4.0")
     implementation ("com.google.firebase:firebase-auth:22.3.0")
-
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+    implementation("androidx.compose.runtime:runtime-rxjava2:1.5.4")
 }
