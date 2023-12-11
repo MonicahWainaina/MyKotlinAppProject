@@ -268,6 +268,9 @@ fun CartScreen(
                 onQuantityChange = { newQuantity ->
                     // Update the quantity of the item in the cart
                     userDataViewModel.updateCartItemQuantity(userId, item.customId, newQuantity)
+                },
+                onDelete = {
+                    userDataViewModel.deleteCartItem(userId, item.customId)
                 }
 
             )
@@ -323,7 +326,7 @@ fun CartScreen(
 }
 
 @Composable
-fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit) {
+fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit,onDelete: () -> Unit) {
     var quantity by remember { mutableStateOf(cartItem.quantity) }
 
     Card(
@@ -446,7 +449,7 @@ fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit) {
                 }
                 // Remove item button
                 TextButton(
-                    onClick = { /* Remove item logic */ },
+                    onClick = onDelete,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.Transparent)
                 ) {

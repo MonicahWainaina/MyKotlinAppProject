@@ -556,6 +556,23 @@ class UserDataViewModel : ViewModel() {
         })
     }
 
+    fun deleteCartItem(userId: String, foodItemId: String) {
+        val userCartRef = database.getReference("Users").child(userId).child("cart")
+        userCartRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val cartItems = snapshot.getValue(object : GenericTypeIndicator<List<FoodItem>>() {})
+                val updatedCartItems = cartItems?.filter { it.customId != foodItemId }
+                updatedCartItems?.let {
+                    userCartRef.setValue(updatedCartItems)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error if needed
+            }
+        })
+    }
+
 
 }
 
