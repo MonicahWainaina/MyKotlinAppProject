@@ -6,7 +6,9 @@ package com.example.myfoodappproject.ui.theme.screens.home
 
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,17 +78,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.myfoodappproject.R
@@ -95,7 +96,6 @@ import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
 import com.example.myfoodappproject.navigation.ROUTE_ORDERS
 import com.example.myfoodappproject.navigation.ROUTE_WELCOME
-import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -108,6 +108,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlin.math.absoluteValue
@@ -118,15 +120,16 @@ import kotlin.math.absoluteValue
 )
 @Composable
 fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewModel = viewModel()){
-    var cartItems by rememberSaveable { mutableStateOf(0) } // Track the number of items in the cart
 
+
+    val cartItems = userDataViewModel.cartItemCount.value
+
+
+    val context = LocalContext.current
     // Function to navigate to the cart screen
 
 
     // Function to increment the number of items in the cart and navigate to the cart screen
-    val addToCart: () -> Unit = {
-        cartItems++
-    }
 
     val viewModel: FoodsViewModel = viewModel()
 
@@ -180,76 +183,76 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
         }
         ModalNavigationDrawer(
             drawerContent = {
-                            ModalDrawerSheet{
-                                Column(
-                                    modifier = Modifier
-                                        .background(Color.Magenta) // Set background color to magenta
-                                        .padding(vertical = 40.dp, horizontal = 30.dp)
-                                        .fillMaxWidth()// Larger padding
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // Icon representing a person
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = "Person",
-                                            tint = Color.White // Set icon color to white
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        // Text saying "Welcome user"
-                                        Text(
-                                            text = "Welcome $userName",
-                                            color = Color.White, // Set text color to white
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
+                ModalDrawerSheet{
+                    Column(
+                        modifier = Modifier
+                            .background(Color.Magenta) // Set background color to magenta
+                            .padding(vertical = 40.dp, horizontal = 30.dp)
+                            .fillMaxWidth()// Larger padding
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Icon representing a person
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Person",
+                                tint = Color.White // Set icon color to white
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            // Text saying "Welcome user"
+                            Text(
+                                text = "Welcome $userName",
+                                color = Color.White, // Set text color to white
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
 
-                                Spacer(modifier = Modifier.height(16.dp))
-                                items.forEachIndexed { index,item  ->  
-                                    NavigationDrawerItem(
-                                        label = { 
-                                                Text(text = item.title)
-                                                },
-                                        selected = index == selectedItemIndex,
-                                        onClick = {
-                                           navController.navigate(item.route)
-                                            selectedItemIndex = index
-                                            scope.launch {
-                                                drawerState.close()
-                                            }
-                                        },
-                                        icon = {
-                                            Icon(
-                                                imageVector = if(index == selectedItemIndex){
-                                                         item.selectedIcon
-                                                }else item.unselectedIcon,
-                                                contentDescription =item.title
-                                            )
-                                        },
-                                        badge = {
-                                            item.badgeCount?.let {
-                                                Text(text = item.badgeCount.toString())
-                                            }
-                                        },
-                                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    items.forEachIndexed { index,item  ->
+                        NavigationDrawerItem(
+                            label = {
+                                Text(text = item.title)
+                            },
+                            selected = index == selectedItemIndex,
+                            onClick = {
+                                navController.navigate(item.route)
+                                selectedItemIndex = index
+                                scope.launch {
+                                    drawerState.close()
                                 }
-
-                                Spacer( modifier = Modifier.weight(1f))
-
-                                // Logout button at the bottom
-                                TextButton(
-                                    onClick = { navController.navigate(ROUTE_WELCOME) },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    colors = ButtonDefaults.textButtonColors( Color.Magenta) // Set button background color to magenta
-                                ) {
-                                    Text(text = "Logout", color = Color.White) // Set text color to white
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = if(index == selectedItemIndex){
+                                        item.selectedIcon
+                                    }else item.unselectedIcon,
+                                    contentDescription =item.title
+                                )
+                            },
+                            badge = {
+                                item.badgeCount?.let {
+                                    Text(text = item.badgeCount.toString())
                                 }
-                            }
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
+
+                    Spacer( modifier = Modifier.weight(1f))
+
+                    // Logout button at the bottom
+                    TextButton(
+                        onClick = { navController.navigate(ROUTE_WELCOME) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = ButtonDefaults.textButtonColors( Color.Magenta) // Set button background color to magenta
+                    ) {
+                        Text(text = "Logout", color = Color.White) // Set text color to white
+                    }
+                }
             },
             drawerState = drawerState
         ) {
@@ -317,7 +320,12 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
                                 containerColor = Color.White
                             )
                         )
-                        FoodList(viewModel = viewModel,navController,addToCart = addToCart)
+                        FoodList(
+                            viewModel = viewModel,
+                            navController = navController,
+                            addToCart = { foodItem -> userDataViewModel.addToCart(userDataViewModel.getUserId()!!, foodItem, context)},
+                            getUserId = { userDataViewModel.getUserId()!! }
+                        )
                     }
                 },
                 floatingActionButton = {
@@ -375,7 +383,8 @@ data class FoodItem(
 
 data class User(
     val name: String = "",
-    val email: String = ""
+    val email: String = "",
+    val cart: List<FoodItem> = emptyList()
 )
 
 
@@ -428,10 +437,24 @@ class UserDataViewModel : ViewModel() {
 
     private val _user = mutableStateOf<User?>(null)
     val user: State<User?> = _user
+
+    // Assuming you're using Firebase Auth
+    val firebaseAuth = FirebaseAuth.getInstance()
+
+    private val _cartItemCount = mutableStateOf(0)
+    val cartItemCount: State<Int> = _cartItemCount
+
+    // Example function to retrieve user ID after authentication
+    fun getUserId(): String? {
+        val currentUser = firebaseAuth.currentUser
+        return currentUser?.uid // This retrieves the user ID (UID) if the user is logged in
+    }
     fun setUser(userData: User) {
         _user.value = userData
     }
 
+
+// Update ViewModel operations with the user ID
 
 
     fun fetchUserData(uid: String, callback: (User?) -> Unit) {
@@ -448,130 +471,168 @@ class UserDataViewModel : ViewModel() {
             }
         })
     }
+
+    private val _cartUpdated = MutableStateFlow(Unit)
+    val cartUpdated: StateFlow<Unit> = _cartUpdated
+    fun addToCart(userId: String, foodItem: FoodItem,context:Context) {
+        val userRef = database.getReference("Users").child(userId)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userData = snapshot.getValue(User::class.java)
+                userData?.let {
+                    val updatedCart = it.cart.toMutableList()
+                    val alreadyExists = updatedCart.any { item -> item.customId == foodItem.customId }
+
+                    if (alreadyExists) {
+                        // Display a toast message indicating that the item is already in the cart
+                        // Replace 'context' with your actual context reference
+                        Toast.makeText(context, "Item already in cart", Toast.LENGTH_SHORT).show()
+                    } else {
+                        updatedCart.add(foodItem)
+                        userRef.child("cart").setValue(updatedCart)
+                        _cartItemCount.value = updatedCart.size // Update the cart count
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle the error scenario if needed
+            }
+        })
+    }
+
+
+
+
 }
 
 
 @Composable
-fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostController,addToCart: () -> Unit) {
+fun FoodList(
+    viewModel: FoodsViewModel = viewModel(),
+    navController: NavHostController,
+    addToCart: (FoodItem) -> Unit, // Modify addToCart parameter
+    getUserId: () -> String // Add getUserId function parameter
+) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 5.dp)
     ) {
         item {
-           Column (
-               modifier = Modifier.padding(horizontal = 5.dp)
-           ){
+            Column (
+                modifier = Modifier.padding(horizontal = 5.dp)
+            ){
 
-               val pagerState = rememberPagerState(
-                   initialPage = 0,
-               )
-               val imageSlider = listOf(
-                   painterResource(id = R.drawable.kenyanfood),
-                   painterResource(id = R.drawable.nyamachoma),
-                   painterResource(id = R.drawable.popularkenyan),
-                   painterResource(id = R.drawable.nyamachomaplatter),
-                   painterResource(id = R.drawable.pancakes),
-                   painterResource(id = R.drawable.samosas),
-                   painterResource(id = R.drawable.breakfast)
-               )
+                val pagerState = rememberPagerState(
+                    initialPage = 0,
+                )
+                val imageSlider = listOf(
+                    painterResource(id = R.drawable.kenyanfood),
+                    painterResource(id = R.drawable.nyamachoma),
+                    painterResource(id = R.drawable.popularkenyan),
+                    painterResource(id = R.drawable.nyamachomaplatter),
+                    painterResource(id = R.drawable.pancakes),
+                    painterResource(id = R.drawable.samosas),
+                    painterResource(id = R.drawable.breakfast)
+                )
 
-               LaunchedEffect(Unit) {
-                   while (true) {
-                       yield()
-                       delay(2600)
-                       pagerState.animateScrollToPage(
-                           page = (pagerState.currentPage + 1) % pagerState.pageCount
-                       )
-                   }
-               }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        yield()
+                        delay(2600)
+                        pagerState.animateScrollToPage(
+                            page = (pagerState.currentPage + 1) % pagerState.pageCount
+                        )
+                    }
+                }
 
-               Column(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .padding(horizontal = 1.dp)
-                       .padding(5.dp)
-               ) {
-                   HorizontalPager(
-                       count = imageSlider.size,
-                       state = pagerState,
-                       contentPadding = PaddingValues(horizontal = 1.dp),
-                       modifier = Modifier
-                           .height(150.dp)
-                           .fillMaxWidth()
-                   ) { page ->
-                       Card(
-                           shape = RoundedCornerShape(12.dp),
-                           modifier = Modifier
-                               .graphicsLayer {
-                                   val pageOffset =
-                                       calculateCurrentOffsetForPage(page).absoluteValue
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 1.dp)
+                        .padding(5.dp)
+                ) {
+                    HorizontalPager(
+                        count = imageSlider.size,
+                        state = pagerState,
+                        contentPadding = PaddingValues(horizontal = 1.dp),
+                        modifier = Modifier
+                            .height(150.dp)
+                            .fillMaxWidth()
+                    ) { page ->
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .graphicsLayer {
+                                    val pageOffset =
+                                        calculateCurrentOffsetForPage(page).absoluteValue
 
-                                   scaleX = lerp(
-                                       start = 0.85f,
-                                       stop = 1f,
-                                       fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                   )
+                                    scaleX = lerp(
+                                        start = 0.85f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
 
-                                   scaleY = lerp(
-                                       start = 0.85f,
-                                       stop = 1f,
-                                       fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                   )
+                                    scaleY = lerp(
+                                        start = 0.85f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
 
-                                   alpha = lerp(
-                                       start = 0.5f,
-                                       stop = 1f,
-                                       fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                   )
+                                    alpha = lerp(
+                                        start = 0.5f,
+                                        stop = 1f,
+                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                    )
 
-                               }
-                       ) {
-                           Box (
+                                }
+                        ) {
+                            Box (
 
-                           ){
+                            ){
 
-                               Image(
-                                   painter = imageSlider[page],
-                                   contentDescription = null,
-                                   contentScale = ContentScale.Crop,
-                                   modifier = Modifier.fillMaxSize()
-                               )
-                               // Label at top-left
-                               Box(
-                                   modifier = Modifier
-                                       .padding(8.dp)
-                                       .background(
-                                           color = Color.Magenta,
-                                           shape = RoundedCornerShape(8.dp)
-                                       )
-                                       .padding(horizontal = 4.dp, vertical = 2.dp)
-                               ) {
-                                   Text(
-                                       text = "Featured",
-                                       color = Color.White,
-                                       fontSize = 15.sp,
-                                       fontWeight = FontWeight.ExtraBold
-                                   )
-                               }
-                           }
+                                Image(
+                                    painter = imageSlider[page],
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                // Label at top-left
+                                Box(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .background(
+                                            color = Color.Magenta,
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "Featured",
+                                        color = Color.White,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                }
+                            }
 
-                       }
-                   }
+                        }
+                    }
 
-                   HorizontalPagerIndicator(
-                       pagerState = pagerState,
-                       modifier = Modifier
-                           .align(Alignment.CenterHorizontally)
-                           .padding(5.dp)
-                   )
-                   Text(
-                       text = "What would you like to have today?",
-                       fontSize = 17.sp,
-                       modifier = Modifier.padding(bottom = 8.dp),
-                       fontFamily = FontFamily.Serif,
-                       fontWeight = FontWeight.ExtraBold
-                   )
-               }
-           }
+                    HorizontalPagerIndicator(
+                        pagerState = pagerState,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(5.dp)
+                    )
+                    Text(
+                        text = "What would you like to have today?",
+                        fontSize = 17.sp,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            }
         }
         if (viewModel.foods.value.isEmpty()) {
             item {
@@ -603,32 +664,32 @@ fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostContr
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     // Load the image using Coil from the provided URL
-                  Box {
-                      Image(
-                          painter = rememberImagePainter(data = foodItem.image),
-                          contentDescription = "Food Image",
-                          modifier = Modifier
-                              .fillMaxWidth()
-                              .height(150.dp),
-                          contentScale = ContentScale.Crop
-                      )
-                      Box(
-                          modifier = Modifier
-                              .padding(8.dp)
-                              .background(
-                                  color = Color.Magenta,
-                                  shape = RoundedCornerShape(8.dp)
-                              )
-                              .padding(horizontal = 4.dp, vertical = 2.dp)
-                      ) {
-                          Text(
-                              text = foodItem.category,
-                              color = Color.White,
-                              fontSize = 15.sp,
-                              fontWeight = FontWeight.ExtraBold
-                          )
-                      }
-                  }
+                    Box {
+                        Image(
+                            painter = rememberImagePainter(data = foodItem.image),
+                            contentDescription = "Food Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .background(
+                                    color = Color.Magenta,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = foodItem.category,
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
 
 
                     // Rest of your card content using the foodItem details
@@ -661,7 +722,11 @@ fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostContr
                         }
 
                         IconButton(
-                            onClick = { addToCart.invoke()},
+                            onClick = {
+                                val userId = getUserId() // Retrieve the user ID
+                                userId?.let {
+                                    addToCart(foodItem) // Add selected item to the user's cart
+                                }},
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
@@ -679,10 +744,5 @@ fun FoodList(viewModel: FoodsViewModel = viewModel(),navController: NavHostContr
 }
 
 
-@Composable
-@Preview(showBackground = true)
-fun HomeScreenPreview(){
-    MyFoodAppProjectTheme {
-        HomeScreen(rememberNavController())
-    }
-}
+
+
