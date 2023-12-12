@@ -126,6 +126,7 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
 
     val cartItems = userDataViewModel.cartItemCount.value
 
+    var quantity by remember { mutableStateOf(1) }
 
     val context = LocalContext.current
     // Function to navigate to the cart screen
@@ -326,7 +327,9 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
                         FoodList(
                             viewModel = viewModel,
                             navController = navController,
-                            addToCart = { foodItem -> userDataViewModel.addToCart(userDataViewModel.getUserId()!!, foodItem, context)},
+                            addToCart = { foodItem, quantity -> // Update addToCart to accept quantity parameter
+                                userDataViewModel.addToCart(userDataViewModel.getUserId()!!, foodItem, quantity, context)
+                            },
                             getUserId = { userDataViewModel.getUserId()!! }
                         )
                     }
@@ -378,8 +381,9 @@ data class FoodItem(
     val description: String,
     val image: String,
     val name: String,
-    val price: Int,
-    val quantity: Int = 1, // Default quantity to 1
+    var price: Int,
+    var quantity: Int = 1,
+    var totalPrice: Int = 0
 ) {
     // Secondary constructor with no-argument initialization
     constructor() : this("", "", "", "", "", 0)
@@ -480,7 +484,7 @@ class UserDataViewModel : ViewModel() {
 
     private val _cartUpdated = MutableStateFlow(Unit)
     val cartUpdated: StateFlow<Unit> = _cartUpdated
-    fun addToCart(userId: String, foodItem: FoodItem,context:Context) {
+    fun addToCart(userId: String, foodItem: FoodItem, quantity: Int, context: Context) {
         val userRef = database.getReference("Users").child(userId)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -491,10 +495,13 @@ class UserDataViewModel : ViewModel() {
 
                     if (alreadyExists) {
                         // Display a toast message indicating that the item is already in the cart
-                        // Replace 'context' with your actual context reference
                         Toast.makeText(context, "Item already in cart", Toast.LENGTH_SHORT).show()
                     } else {
-                        updatedCart.add(foodItem)
+                        // If item is not in the cart, add it
+                        val newItem = foodItem.copy(quantity = quantity, totalPrice = foodItem.price * quantity)
+                        updatedCart.add(newItem)
+                        Toast.makeText(context, "${foodItem.name} added to cart", Toast.LENGTH_SHORT).show()
+
                         userRef.child("cart").setValue(updatedCart)
                         _cartItemCount.value = updatedCart.size // Update the cart count
                     }
@@ -506,6 +513,7 @@ class UserDataViewModel : ViewModel() {
             }
         })
     }
+
     // Inside UserDataViewModel
     private val _cartItems = MutableStateFlow<List<FoodItem>>(emptyList())
     val cartItems: StateFlow<List<FoodItem>> = _cartItems
@@ -663,8 +671,8 @@ class UserDataViewModel : ViewModel() {
 fun FoodList(
     viewModel: FoodsViewModel = viewModel(),
     navController: NavHostController,
-    addToCart: (FoodItem) -> Unit, // Modify addToCart parameter
-    getUserId: () -> String // Add getUserId function parameter
+    addToCart: (FoodItem, Int) -> Unit, // Modify addToCart parameter
+    getUserId: () -> String, // Add getUserId function parameter
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 5.dp)
@@ -876,8 +884,9 @@ fun FoodList(
                         IconButton(
                             onClick = {
                                 val userId = getUserId() // Retrieve the user ID
+                                val quantity = 1 // For example, set a default quantity or get it from somewhere
                                 userId?.let {
-                                    addToCart(foodItem) // Add selected item to the user's cart
+                                    addToCart(foodItem, quantity) // Add selected item to the user's cart with quantity
                                 }},
                             modifier = Modifier.size(40.dp)
                         ) {

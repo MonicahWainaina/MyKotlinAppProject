@@ -39,18 +39,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
+import com.example.myfoodappproject.ui.theme.screens.home.UserDataViewModel
 
 @Composable
 fun FoodDetailsScreen(foodItem: FoodItem,navController: NavHostController) {
     var quantity by remember { mutableStateOf(1) }
     var totalPrice = quantity * foodItem.price
+    val userDataViewModel: UserDataViewModel = viewModel()
+    val context = LocalContext.current
 
 
     Scaffold(
@@ -190,7 +195,12 @@ fun FoodDetailsScreen(foodItem: FoodItem,navController: NavHostController) {
                 // ... (existing code remains the same)
                 // Updated Add to Cart button with total price
                 Button(
-                    onClick = { /* Handle adding to cart */ },
+                    onClick = {
+                        val userId = userDataViewModel.getUserId()
+                        userId?.let {
+                            userDataViewModel.addToCart(userId, foodItem, quantity, context)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
