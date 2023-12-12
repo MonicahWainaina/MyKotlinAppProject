@@ -46,9 +46,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.example.myfoodappproject.data.FoodItem
+import com.example.myfoodappproject.models.FoodsViewModel
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
-import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
-import com.example.myfoodappproject.ui.theme.screens.home.FoodsViewModel
 
 @Composable
 fun FoodItemsByCategory(navController: NavHostController) {
@@ -100,7 +100,7 @@ fun FoodItemsByCategory(navController: NavHostController) {
 }
 
 @Composable
-fun FoodItemCard(foodItem: FoodItem,navController: NavHostController) {
+fun FoodItemCard(foodItem: FoodItem, navController: NavHostController) {
     // Implement your card layout to display the food item details here
     // Use the foodItem properties like name, image, description, etc., to populate the card
             Card(

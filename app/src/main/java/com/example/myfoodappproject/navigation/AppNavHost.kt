@@ -11,11 +11,11 @@ import androidx.navigation.navArgument
 import com.example.foodapp.ui.theme.screens.login.LoginScreen
 import com.example.foodapp.ui.theme.screens.signup.SignUpScreen
 import com.example.foodapp.ui.theme.screens.welcome.WelcomeScreen
+import com.example.myfoodappproject.models.FoodsViewModel
 import com.example.myfoodappproject.ui.theme.screens.cart.CartScreen
 import com.example.myfoodappproject.ui.theme.screens.categories.CategoriesScreen
 import com.example.myfoodappproject.ui.theme.screens.categoryitems.FoodItemsByCategory
 import com.example.myfoodappproject.ui.theme.screens.details.FoodDetailsScreen
-import com.example.myfoodappproject.ui.theme.screens.home.FoodsViewModel
 import com.example.myfoodappproject.ui.theme.screens.home.HomeScreen
 import com.example.myfoodappproject.ui.theme.screens.orders.OrdersScreen
 import com.google.firebase.auth.FirebaseAuth

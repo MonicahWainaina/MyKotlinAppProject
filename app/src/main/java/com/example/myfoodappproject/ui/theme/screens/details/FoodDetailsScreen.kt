@@ -47,11 +47,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
-import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
-import com.example.myfoodappproject.ui.theme.screens.home.UserDataViewModel
+import com.example.myfoodappproject.data.FoodItem
+import com.example.myfoodappproject.models.UserDataViewModel
 
 @Composable
-fun FoodDetailsScreen(foodItem: FoodItem,navController: NavHostController) {
+fun FoodDetailsScreen(foodItem: FoodItem, navController: NavHostController) {
     var quantity by remember { mutableStateOf(1) }
     var totalPrice = quantity * foodItem.price
     val userDataViewModel: UserDataViewModel = viewModel()

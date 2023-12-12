@@ -11,9 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.myfoodappproject.models.FoodsViewModel
 import com.example.myfoodappproject.navigation.AppNavHost
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
-import com.example.myfoodappproject.ui.theme.screens.home.FoodsViewModel
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {

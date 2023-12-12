@@ -76,15 +76,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.example.myfoodappproject.data.FoodItem
+import com.example.myfoodappproject.models.UserDataViewModel
 import com.example.myfoodappproject.navigation.ROUTE_CART
 import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
 import com.example.myfoodappproject.navigation.ROUTE_ORDERS
 import com.example.myfoodappproject.navigation.ROUTE_WELCOME
 import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
-import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
 import com.example.myfoodappproject.ui.theme.screens.home.NavigationItem
-import com.example.myfoodappproject.ui.theme.screens.home.UserDataViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -336,7 +336,7 @@ fun CartScreeen(
 }
 
 @Composable
-fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit,onDelete: () -> Unit) {
+fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit, onDelete: () -> Unit) {
     var quantity by remember { mutableStateOf(cartItem.quantity) }
 
     Card(

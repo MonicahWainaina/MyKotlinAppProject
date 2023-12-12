@@ -64,14 +64,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
+import com.example.myfoodappproject.data.Order
+import com.example.myfoodappproject.models.UserDataViewModel
 import com.example.myfoodappproject.navigation.ROUTE_CART
 import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
 import com.example.myfoodappproject.navigation.ROUTE_ORDERS
 import com.example.myfoodappproject.navigation.ROUTE_WELCOME
-import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
 import com.example.myfoodappproject.ui.theme.screens.home.NavigationItem
-import com.example.myfoodappproject.ui.theme.screens.home.UserDataViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -259,12 +259,7 @@ data class NavigationItem(
 )
 
 
-data class Order(
-    val orderNumber: String = "",
-    val items: List<FoodItem> = emptyList(),
-    val totalPrice: Int = 0,
-    val status: String = ""
-)
+
 
 @Composable
 fun OrderItem(order: Order) {
