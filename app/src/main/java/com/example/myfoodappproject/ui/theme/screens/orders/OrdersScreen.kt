@@ -1,8 +1,10 @@
 package com.example.myfoodappproject.ui.theme.screens.orders
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,9 +45,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -55,27 +58,41 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.myfoodappproject.R
+import coil.compose.rememberImagePainter
 import com.example.myfoodappproject.navigation.ROUTE_CART
 import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
 import com.example.myfoodappproject.navigation.ROUTE_ORDERS
 import com.example.myfoodappproject.navigation.ROUTE_WELCOME
-import com.example.myfoodappproject.ui.theme.MyFoodAppProjectTheme
+import com.example.myfoodappproject.ui.theme.screens.home.FoodItem
 import com.example.myfoodappproject.ui.theme.screens.home.NavigationItem
+import com.example.myfoodappproject.ui.theme.screens.home.UserDataViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrdersScreen(navController: NavHostController){
-    val orders = remember { sampleOrders }
+fun OrdersScreen(navController: NavHostController) {
+    val userDataViewModel: UserDataViewModel = viewModel() // or viewModelProvider()
+
+    // Observe changes in the orders StateFlow
+    val orders by userDataViewModel.orders.collectAsState()
+
+
+    LaunchedEffect(Unit) {
+        val userId = userDataViewModel.getUserId()
+        userId?.let {
+            userDataViewModel.fetchOrders(it)
+        }
+    }
+
+    Log.d("OrderScreen", "Orders: $orders")
+
+
     val items = listOf(
         NavigationItem(
             title = "Home",
@@ -209,19 +226,23 @@ fun OrdersScreen(navController: NavHostController){
                     )
                 },
                 content = {
-                   /* Text(
-                        modifier = Modifier.padding(it),
-                        text = "OrdersScreen"
-                    )*/
-                    LazyColumn(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp)
                             .padding(it)
                     ) {
-                        items(orders) { order ->
-                            OrderItem(order)
-                            Spacer(modifier = Modifier.height(16.dp))
+                        if (orders.isEmpty()) {
+                            // Show a loading indicator or empty state if no orders
+                            Text(text = "No orders available")
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                items(orders) { order ->
+                                    OrderItem(order)
+                                }
+                            }
                         }
                     }
                 }
@@ -236,53 +257,64 @@ data class NavigationItem(
     val badgeCount: Int? = null,
     var route: String
 )
+
+
 data class Order(
-    val itemName: String,
-    val orderNumber: String,
-    val status: String,
-    val imageResId: Int // Resource ID of the image
+    val orderNumber: String = "",
+    val items: List<FoodItem> = emptyList(),
+    val totalPrice: Int = 0,
+    val status: String = ""
 )
+
 @Composable
 fun OrderItem(order: Order) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clip(RoundedCornerShape(8.dp)) // Rounded corners
-            .border(1.dp, Color.Magenta, RoundedCornerShape(8.dp)) // Magenta border
+            .clip(RoundedCornerShape(8.dp))
+            .border(1.dp, Color.Magenta, RoundedCornerShape(8.dp))
     ) {
-        // Image of the item
-        Image(
-            painter = painterResource(id = order.imageResId),
-            contentDescription = "Item Image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp) // Adjust as needed
-                .clip(shape = RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
+        // Display each item in the order
+        order.items.forEach { foodItem ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                // Image of the item
+                Image(
+                    painter = rememberImagePainter(data = foodItem.image),
+                    contentDescription = "Item Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .clip(shape = RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-        // Item name
-        Text(
-            text = order.itemName,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
-        )
+                // Item name
+                Text(
+                    text = foodItem.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Order number
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+        }
+        // Display order number
         Text(
             text = "Order #${order.orderNumber}",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Status
+        // Display order status
         Text(
             text = "Status: ${order.status}",
             color = when (order.status) {
@@ -291,30 +323,10 @@ fun OrderItem(order: Order) {
                 else -> Color.Black
             },
             fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            modifier = Modifier.padding(8.dp)
         )
     }
 }
-// Function to fetch order details (Replace this with your data retrieval logic)
-/*fun getOrderDetails(): Order {
-    // Replace with actual order details
-    return Order(
-        itemName = "Sample Item",
-        orderNumber = "123456",
-        status = "Delivered", // Replace with the actual status
-        imageResId = R.drawable.bestfood // Replace with your image resource ID
-    )
-}*/
-// Sample data for orders (Replace this with your actual orders)
-val sampleOrders = listOf(
-    Order("Item 1", "123456", "Delivered", R.drawable.popularkenyan),
-    Order("Item 2", "789012", "On its way", R.drawable.kenyanfood),
-    // Add more sample orders as needed
-)
-@Composable
-@Preview(showBackground = true)
-fun HomeScreenPreview(){
-    MyFoodAppProjectTheme {
-        OrdersScreen(rememberNavController())
-    }
-}
+
+

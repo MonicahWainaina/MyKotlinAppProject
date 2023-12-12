@@ -1,5 +1,6 @@
 package com.example.myfoodappproject.ui.theme.screens.cart
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,6 +66,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -227,7 +229,7 @@ fun CartScreen(navController: NavHostController){
                             .fillMaxSize()
                             .padding(it)
                     ) {
-                        CartScreen()
+                        CartScreeen(context = LocalContext.current)
                     }
                 }
             )
@@ -242,7 +244,8 @@ data class NavigationItem(
     var route: String
 )
 @Composable
-fun CartScreen(
+fun CartScreeen(
+    context: Context,
     userDataViewModel: UserDataViewModel = viewModel()
 ) {
     val userId = userDataViewModel.getUserId() ?: ""
@@ -309,7 +312,14 @@ fun CartScreen(
 
                 // Checkout button
                 Button(
-                    onClick = {  },
+                    onClick = {
+                        val userId = userDataViewModel.getUserId() ?: ""
+                        context.let {
+                            if (userId.isNotEmpty()) {
+                                userDataViewModel.placeOrder(userId, it)
+                            }
+                        }
+                    },
                         modifier = Modifier
                             .fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(Color.Magenta)
@@ -461,6 +471,9 @@ fun CartItemCard(cartItem: FoodItem, onQuantityChange: (Int) -> Unit,onDelete: (
 }
 
 
+fun calculateTotalPrice(cartItems: List<FoodItem>): Int {
+    return cartItems.map { it.price * it.quantity }.sum()
+}
 
 
 @Composable

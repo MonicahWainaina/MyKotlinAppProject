@@ -96,6 +96,7 @@ import com.example.myfoodappproject.navigation.ROUTE_CATEGORIES
 import com.example.myfoodappproject.navigation.ROUTE_HOME
 import com.example.myfoodappproject.navigation.ROUTE_ORDERS
 import com.example.myfoodappproject.navigation.ROUTE_WELCOME
+import com.example.myfoodappproject.ui.theme.screens.orders.Order
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -378,7 +379,7 @@ data class FoodItem(
     val image: String,
     val name: String,
     val price: Int,
-    val quantity: Int = 1 // Default quantity to 1
+    val quantity: Int = 1, // Default quantity to 1
 ) {
     // Secondary constructor with no-argument initialization
     constructor() : this("", "", "", "", "", 0)
@@ -388,7 +389,8 @@ data class FoodItem(
 data class User(
     val name: String = "",
     val email: String = "",
-    val cart: List<FoodItem> = emptyList()
+    val cart: List<FoodItem> = emptyList(),
+    val orders: Map<String, Order> = emptyMap()
 )
 
 
@@ -437,7 +439,7 @@ class FoodsViewModel : ViewModel() {
     }
 }
 class UserDataViewModel : ViewModel() {
-    private val database = Firebase.database // Replace with your Firebase database reference
+    private val database =Firebase.database("https://foodorderapp-39742-default-rtdb.firebaseio.com/")
 
     private val _user = mutableStateOf<User?>(null)
     val user: State<User?> = _user
@@ -573,8 +575,88 @@ class UserDataViewModel : ViewModel() {
         })
     }
 
+    // Inside UserDataViewModel
+    fun placeOrder(userId: String, context: Context) {
+        val userCartRef = database.getReference("Users").child(userId).child("cart")
+        val userOrdersRef = database.getReference("Users").child(userId).child("orders")
+
+        userCartRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val cartItems = snapshot.getValue(object : GenericTypeIndicator<List<FoodItem>>() {})
+                cartItems?.let {
+                    val totalPrice = calculateTotalPrice(it)
+                    val orderDetails = hashMapOf(
+                        "items" to it,
+                        "totalPrice" to totalPrice
+                    )
+
+                    userOrdersRef.push().setValue(orderDetails) // Moves cart items to orders
+                    userCartRef.removeValue() // Clears the cart after placing the order
+
+                    // Display a toast message indicating successful payment
+                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error if needed
+            }
+        })
+
+    }
+
+    private fun calculateTotalPrice(cartItems: List<FoodItem>): Int {
+        return cartItems.map { it.price * it.quantity }.sum()
+    }
+
+    private val _orders = MutableStateFlow<List<Order>>(emptyList())
+    val orders: StateFlow<List<Order>> = _orders
+
+    // Fetch orders method populating _orders variable
+    // Inside the fetchOrders function in your UserDataViewModel
+    fun fetchOrders(userId: String) {
+        val userOrdersRef = database.getReference("Users").child(userId).child("orders")
+        userOrdersRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val ordersList = mutableListOf<Order>()
+
+                for (orderSnapshot in snapshot.children) {
+                    val orderNumber = orderSnapshot.key.toString()
+                    val totalPrice = orderSnapshot.child("totalPrice").getValue(Int::class.java) ?: 0
+                    val status = orderSnapshot.child("status").getValue(String::class.java) ?: ""
+
+                    val items = mutableListOf<FoodItem>()
+
+                    for (itemSnapshot in orderSnapshot.child("items").children) {
+                        val customId = itemSnapshot.child("customId").getValue(String::class.java) ?: ""
+                        val category = itemSnapshot.child("category").getValue(String::class.java) ?: ""
+                        val description = itemSnapshot.child("description").getValue(String::class.java) ?: ""
+                        val image = itemSnapshot.child("image").getValue(String::class.java) ?: ""
+                        val name = itemSnapshot.child("name").getValue(String::class.java) ?: ""
+                        val price = itemSnapshot.child("price").getValue(Int::class.java) ?: 0
+                        val quantity = itemSnapshot.child("quantity").getValue(Int::class.java) ?: 1
+
+                        val foodItem = FoodItem(customId, category, description, image, name, price, quantity)
+                        items.add(foodItem)
+                    }
+
+                    val order = Order(orderNumber, items, totalPrice, status)
+                    ordersList.add(order)
+                }
+
+                _orders.value = ordersList
+                Log.d("ViewModel", "Orders: $ordersList")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error scenario
+            }
+        })
+    }
+
 
 }
+
 
 
 @Composable
