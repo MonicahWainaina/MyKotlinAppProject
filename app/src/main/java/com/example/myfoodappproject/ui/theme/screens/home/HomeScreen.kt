@@ -149,6 +149,9 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
         }
     }
 
+    var searchText by remember { mutableStateOf("") }
+
+    // Function to filter food items based on search text
 
     val items = listOf(
         NavigationItem(
@@ -299,8 +302,8 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
                         var text by remember { mutableStateOf("") }
 
                         OutlinedTextField(
-                            value = text,
-                            onValueChange = { text = it },
+                            value = searchText,
+                            onValueChange = { searchText = it },
                             label = {
                                 Text("Search and Place Your Order")
                             },
@@ -330,7 +333,8 @@ fun HomeScreen(navController: NavHostController,userDataViewModel: UserDataViewM
                             addToCart = { foodItem, quantity -> // Update addToCart to accept quantity parameter
                                 userDataViewModel.addToCart(userDataViewModel.getUserId()!!, foodItem, quantity, context)
                             },
-                            getUserId = { userDataViewModel.getUserId()!! }
+                            getUserId = { userDataViewModel.getUserId()!! },
+                            searchText = searchText // Pass filtered items to FoodList
                         )
                     }
                 },
@@ -673,7 +677,12 @@ fun FoodList(
     navController: NavHostController,
     addToCart: (FoodItem, Int) -> Unit, // Modify addToCart parameter
     getUserId: () -> String, // Add getUserId function parameter
+    searchText: String // Receive the search text here
 ) {
+    val foodItems = viewModel.foods.value.filter {
+        it.name.contains(searchText, ignoreCase = true) // Filter food items based on search text
+    }
+
     LazyColumn(
         modifier = Modifier.padding(horizontal = 5.dp)
     ) {
@@ -805,7 +814,7 @@ fun FoodList(
                 )
             }
         } else {
-            items(viewModel.foods.value) { foodItem ->
+            items(foodItems) { foodItem ->
 
                 Card(
                     modifier = Modifier
