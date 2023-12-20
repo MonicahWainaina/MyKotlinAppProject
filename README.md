@@ -26,14 +26,15 @@ Here are some snapshots of the app's interface:
   <em>Fig.2: Details Screen</em>
   <em>Fig.3: Cart Screen</em>
 </p>
-
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069174/Screenshot_2023-12-13-09-07-00-41_d42a69640004e207fe0a913222474de8_cq40ry.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-05-10-22_d42a69640004e207fe0a913222474de8_pgbmtm.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069182/Screenshot_2023-12-13-09-17-39-50_d42a69640004e207fe0a913222474de8_xxsdcg.jpg)
-
-
-
-
+<p align="center">
+  <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069174/Screenshot_2023-12-13-09-07-00-41_d42a69640004e207fe0a913222474de8_cq40ry.jpg" width="200" alt="Welcome Screen">
+  <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-05-10-22_d42a69640004e207fe0a913222474de8_pgbmtm.jpg" width="200" alt="Login Screen">
+  <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069182/Screenshot_2023-12-13-09-17-39-50_d42a69640004e207fe0a913222474de8_xxsdcg.jpg" width="200" alt="Home Screen">
+  <br/>
+  <em>Fig.1: Orders Screen</em>
+  <em>Fig.2: Navigation Drawer</em>
+  <em>Fig.3: Categories Screen</em>
+</p>
 
 #### Features
 
