@@ -14,8 +14,8 @@ Here are some snapshots of the app's interface:
   <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069175/Screenshot_2023-12-13-09-03-54-90_d42a69640004e207fe0a913222474de8_mvibcv.jpg" width="200" alt="Home Screen">
   <br/>
   <em>Fig.1: Welcome Screen</em>
-  <em>Fig.2: Login Screen</em>
-  <em>Fig.3: Home Screen</em>
+  <em>Fig.2: Register Screen</em>
+  <em>Fig.3: Login Screen</em>
 </p>
 <p align="center">
   <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-05-02-01_d42a69640004e207fe0a913222474de8_cgupbk.jpg" width="200" alt="Welcome Screen">
