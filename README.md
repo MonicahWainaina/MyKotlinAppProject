@@ -17,13 +17,16 @@ Here are some snapshots of the app's interface:
   <em>Fig.2: Login Screen</em>
   <em>Fig.3: Home Screen</em>
 </p>
+<p align="center">
+  <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-05-02-01_d42a69640004e207fe0a913222474de8_cgupbk.jpg" width="200" alt="Welcome Screen">
+  <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069179/Screenshot_2023-12-13-09-18-21-26_d42a69640004e207fe0a913222474de8_kuhddq.jpg" width="200" alt="Login Screen">
+  <img src="https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069184/Screenshot_2023-12-13-09-05-25-01_d42a69640004e207fe0a913222474de8_yhryby.jpg" width="200" alt="Home Screen">
+  <br/>
+  <em>Fig.1: Home Screen</em>
+  <em>Fig.2: Details Screen</em>
+  <em>Fig.3: Cart Screen</em>
+</p>
 
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-03-39-92_d42a69640004e207fe0a913222474de8_x7lfod.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069174/Screenshot_2023-12-13-09-03-48-81_d42a69640004e207fe0a913222474de8_rnrqjc.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069175/Screenshot_2023-12-13-09-03-54-90_d42a69640004e207fe0a913222474de8_mvibcv.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-05-02-01_d42a69640004e207fe0a913222474de8_cgupbk.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069179/Screenshot_2023-12-13-09-18-21-26_d42a69640004e207fe0a913222474de8_kuhddq.jpg)
-![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069184/Screenshot_2023-12-13-09-05-25-01_d42a69640004e207fe0a913222474de8_yhryby.jpg)
 ![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069174/Screenshot_2023-12-13-09-07-00-41_d42a69640004e207fe0a913222474de8_cq40ry.jpg)
 ![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069173/Screenshot_2023-12-13-09-05-10-22_d42a69640004e207fe0a913222474de8_pgbmtm.jpg)
 ![alt](https://res.cloudinary.com/djlcnpdtn/image/upload/v1703069182/Screenshot_2023-12-13-09-17-39-50_d42a69640004e207fe0a913222474de8_xxsdcg.jpg)
